@@ -1,0 +1,174 @@
+#!/usr/local/bin/perl
+
+use strict;
+use v5.8.1;
+
+use warnings;
+use Getopt::Long;
+use Pod::Usage;
+use UNIVERSAL::require;
+use Data::Dumper;
+#use Sys::Hostname ();
+#use Best [ [ qw/YAML::XS YAML::Syck YAML/ ], qw/Dump/ ];
+
+my $options;
+my $DEBUG;
+
+BEGIN {
+	$options={};
+	$Getopt::Long::ignorecase=0;
+	GetOptions ($options, qw/
+		HOST=s 
+		port=i 
+		alias=s
+		state_name|state=s
+		INC|inc:s@
+		inc_=s
+		Utility=s
+		debug
+		Display
+		help
+		output|out=s
+		/);
+}
+
+POEIKC::Client->use or do{lib->use('lib');POEIKC::Client->use or die $@} ;
+
+	if (exists $options->{debug}) {
+		local $Data::Dumper::Terse    = 1; 
+		local $Data::Dumper::Sortkeys = 1; 
+		local $Data::Dumper::Indent   = 1; 
+		print '@INC => '.Dumper(\@INC);
+	}
+
+my $client = POEIKC::Client->new();
+
+my ($state_name, $args) = $client->ikc_client_format($options, @ARGV) or pod2usage(1);
+
+#	$DEBUG and _DEBUG_log($state_name, $args);
+
+if ($DEBUG or exists $options->{Display}){
+	my $param = ref $args ? Dumper($args): $args;
+	$param =~ s/\s+//g;
+	$param =~ s/\$VAR1=//g;
+	$param =~ s/;//g;
+	printf "\n# \$ikc_client->post_respond( '%s' => %s );\n\n",$state_name => $param ;
+}
+
+$client->post_respond($options, $state_name, $args);
+
+
+
+__END__
+
+=head1 NAME
+
+poikc - POK IKC (poeikcd) Client
+
+=head1 SYNOPSIS
+
+  poikc -H hostname [options] args...
+
+  poikc ModuleName::functionName  args...
+  poikc "ClassName->methodName"   args...
+  poikc  AliasName eventName      args...
+
+Options:
+
+    -H  --HOST=s         : default 127.0.0.1 
+
+    -p  --port=#         : Port number to use for connection.
+                           default 47225 
+
+    -a  --alias=s        : session alias
+                           default POEIKCd 
+                           eg)
+                             -a=my_session_ailas
+
+    -s  --state_name=s   : state_name 
+                           (method_respond | function_respond | event_respond )
+                           eg) -s=m | -s=f | -s=e 
+                               -state_name=my_event_name
+
+    --Utility=s          : POEIKC::Daemon::Utility It is shortcut.
+                          eg) poikc -U=get_VERSION
+                          -U=get_stay, -U=get_load, -U=get_H_INC, -U=get_E_ENV
+                          
+
+    -o  --output|out=s   : output method 
+                          -o y | -output=YAML
+                          -o d | -output=Dumper   (Data::Dumper)
+
+    -Display             : The parameter given to post_respond is confirm.
+
+    -h  --help
+
+
+Command:
+
+@INC Operation
+
+    -I  --INC=s          : specify @INC/#include directory
+                           eg1) -I ~/lib:/mylib/ or -I ~/lib -I /foo/lib/
+                           eg2) poikc -I '$ENV{HOME}/lib'
+
+    --inc_=delete ~/lib  : deletes from @INC.
+    --inc_=reset         : @INC is reset.
+
+  eg:
+    poikc  -I                     ( print Dumper \@INC )
+    poikc  -I ./t                 ( unshift @INC, './t' )
+    poikc --inc_=delete ./t       ( @INC = grep {$_ ne './t'} @INC )
+    poikc --inc_=reset
+
+pokikcd server shutdown  ( Please specify a host name.)
+
+    poikc -H=hostname shutdown 
+
+eg:
+
+    poikc -U=get_VERSION
+    poikc -U=eval 'scalar `ps aux`'
+    poikc LWP::Simple::get  http://search.cpan.org/~suzuki/
+
+    poikc -o=d -U=publish_IKC my_alias_name my_package_name
+    poikc -o=d -U=publish_IKC my_alias_name _list event_1 event_2 ..
+
+    loop
+        # A loop is carried out 30 times.
+        poikc -D -U loop  30  Module::method args ..
+        # Carrying out a loop is continued.
+        poikc -D -U loop  Module::method args ..
+        poikc -D -U stop  Module::method args ..
+        poikc -D -U stop  Module::method end_method args ..
+    relay
+        poikc -D -U relay MyModule::relay_start args ..
+          package MyModule;
+          sub relay_start { my @args = @_; '# Some processings'; 
+                            return 'relay_1', @args1}
+          sub relay_1 { my @args1 = @_; '# Some processings'; 
+                            return 'relay_2', @args2;}
+          sub relay_2 { my @args2 = @_; ... }
+    chain
+       poikc -D -U chain  Demo::Demo::chain_start chain_1,chain_2,chain_3 abcdefg
+
+
+=head1 DESCRIPTION
+
+poikc is POE IKC (L<poeikcd>) Client 
+
+=head1 AUTHOR
+
+Yuji Suzuki E<lt>yuji.suzuki.perl@gmail.comE<gt>
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 SEE ALSO
+
+L<poeikcd>
+L<POE::Component::IKC::ClientLite>
+
+=cut
