@@ -17,6 +17,8 @@ requires('Proc::Daemon');
 requires('Pod::Usage');
 requires('Best');
 requires('YAML');
+requires('Proc::Killall');
+requires('Term::ReadLine');
 
 build_requires 'Test::More';
 build_requires 'Test::Base';

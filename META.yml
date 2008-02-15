@@ -1,5 +1,5 @@
 --- 
-abstract: ~
+abstract: POE IKC daemon and client
 author: 
   - Yuji Suzuki <yuji.suzuki.perl@gmail.com>
 build_requires: 
@@ -31,7 +31,9 @@ requires:
   POE::Sugar::Args: 0
   Pod::Usage: 0
   Proc::Daemon: 0
+  Proc::Killall: 0
+  Term::ReadLine: 0
   UNIVERSAL::require: 0
   YAML: 0
   perl: 5.8.1
-version: 0.00_00
+version: 0.00_01

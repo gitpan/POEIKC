@@ -20,6 +20,10 @@ BEGIN {
 	GetOptions ($options, qw/
 		port=i
 		alias=s
+		Verbose
+		Processes=i
+		babysit=i
+		connections=i
 		INC|inc:s@
 		foreground
 		version
@@ -103,9 +107,9 @@ for ($command) {
 			printf "%s\n\n",$POE::Component::IKC::ClientLite::error; 
 			exit;
 		};
-		my $ret = $ikc->post_respond($options->{alias}.'/method_respond' => ['POEIKC::Daemon::Utility','stop'] );
+		my $ret = $ikc->post_respond($options->{alias}.'/method_respond' => ['POEIKC::Daemon::Utility','shutdown'] );
 		$ikc->error and die($ikc->error);
-		printf $ret;
+		print $ret if $ret;
 		/restart/i ? do{$command='start';redo} : last;
 	};
 
@@ -159,10 +163,18 @@ poeikcd - POE IKC daemon
 
     -v   --version     : show version number
 
+
     -d   --debug       : debug mode. Run in the foreground 
                          STDOUT & STDERR It outputs.
 
     -h   --help        : show this help screen
+
+IKC server. Parameters (See also L<POE::Component::IKC::Server>)
+
+    -V   --Verbose     
+    -P   --Processes   
+    -b   --babysit     
+    -c   --connections 
 
 
 =head1 DESCRIPTION
@@ -181,5 +193,6 @@ it under the same terms as Perl itself.
 =head1 SEE ALSO
 
 L<poikc>
+L<POE::Component::IKC::Server>
 
 =cut

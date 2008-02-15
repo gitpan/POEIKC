@@ -8,6 +8,7 @@ use Data::Dumper;
 use Sys::Hostname ();
 use Class::Inspector;
 use UNIVERSAL::require;
+use Proc::Killall;
 use POE qw(
 	Sugar::Args
 	Loop::IO_Poll
@@ -29,6 +30,12 @@ __PACKAGE__->mk_accessors(qw/pidu argv alias ikc_self_port/);
 
 ####
 
+sub ikc_server_param {
+	my $self = shift;
+	$self->{ikc_server_param}->{$_[0]} = $_[1] if (@_ and $_[1]);
+	return %{$self->{ikc_server_param}};
+}
+
 sub init {
 	my $class = shift || __PACKAGE__ ;
 	my $self = $class->new;
@@ -36,7 +43,14 @@ sub init {
 	$DEBUG = $opt{debug};
 	$self->argv($opt{argv}) if $opt{argv};
 	$self->alias($opt{alias} || 'POEIKCd');
+
 	$self->ikc_self_port($opt{port} || $ARGV[0] || 47225);
+	$self->ikc_server_param(port		=>$opt{port});
+	$self->ikc_server_param(verbose		=>$opt{Verbose});
+	$self->ikc_server_param(processes	=>$opt{Processes});
+	$self->ikc_server_param(babysit		=>$opt{babysit});
+	$self->ikc_server_param(connections	=>$opt{connections});
+
 	$self->pidu(POEIKC::Daemon::Utility->_new);
 	$self->pidu->_init();
 	$self->pidu->DEBUG($DEBUG) if $DEBUG;
@@ -56,6 +70,7 @@ sub init {
 		POEIKC::Daemon::Utility::_DEBUG_log(load_module=>$self->pidu->inc->{load});
 		POEIKC::Daemon::Utility::_DEBUG_log(GetOptions=>\%opt);
 		POEIKC::Daemon::Utility::_DEBUG_log('@INC'	=>\@INC);
+		POEIKC::Daemon::Utility::_DEBUG_log({$self->ikc_server_param});
 	}
 	return $self;
 }
@@ -74,12 +89,17 @@ sub poe_run {
 sub spawn
 {
 	my $self = shift;
-
-	POE::Component::IKC::Server->spawn(
-		port => $self->ikc_self_port ,
-		name => __PACKAGE__,
-		aliases  => [ __PACKAGE__ . Sys::Hostname::hostname],
+	my $name = join('_'=>__PACKAGE__ =~ m/(\w+)/g);
+	my %param = (
+		#port => $self->ikc_self_port ,
+		name => $name,
+		aliases  => [ $name .'_'. Sys::Hostname::hostname],
+		$self->ikc_server_param
 	);
+
+	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log(\%param);
+
+	POE::Component::IKC::Server->spawn(%param);
 
 	POE::Session->create(
 	    object_states => [ $self =>  Class::Inspector->methods(__PACKAGE__) ]
@@ -105,10 +125,10 @@ sub _start {
 	$kernel->alias_set($object->alias);
 
 	# 終了処理 を登録
-	$kernel->sig( HUP  => '_stop' );
-	$kernel->sig( INT  => '_stop' );
-	$kernel->sig( TERM => '_stop' );
-	$kernel->sig( KILL => '_stop' );
+	$kernel->sig( HUP  => 'sig_stop' );
+	$kernel->sig( INT  => 'sig_stop' );
+	$kernel->sig( TERM => 'sig_stop' );
+	$kernel->sig( KILL => 'sig_stop' );
 
 	$kernel->call(
 		IKC =>
@@ -145,10 +165,29 @@ sub callback_unregister
 	POEIKC::Daemon::Utility::_DEBUG_log(unregister=>$client);
 }
 
+sub sig_stop {
+	my $poe = sweet_args;
+	my $kernel = $poe->kernel;
+	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log();
+	$kernel->yield('_stop');
+}
+
 sub _stop {
 	my $poe = sweet_args;
-	$poe->kernel->stop();
+	my $kernel = $poe->kernel;
+	$kernel->call( IKC => 'shutdown');
+	$kernel->stop();
 	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log();
+	printf "%s PID:%s ... stopped!! (%s)\n", $0, $$, scalar(localtime);
+}
+
+sub shutdown {
+	my $poe = sweet_args;
+	my $kernel = $poe->kernel;
+	$kernel->call( IKC => 'shutdown');
+	$kernel->stop();
+	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log();
+	killall('KILL', $0); # SIGKILL 
 	printf "%s PID:%s ... stopped!! (%s)\n", $0, $$, scalar(localtime);
 }
 

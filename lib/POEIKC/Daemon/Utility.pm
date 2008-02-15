@@ -46,7 +46,7 @@ sub shutdown {
 		$args{poe}, $args{rsvp}, $args{from}, $args{args} );
 	my ($alias, $event_ary) = ($args{alias}, $args{event});
 
-	$poe->kernel->delay('_stop', 0.002);
+	$poe->kernel->delay('shutdown', 0.002);
 	return sprintf("%s PID:%s ... stopped!! (%s)\n", $0, $$, scalar(localtime));
 }
 

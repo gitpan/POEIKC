@@ -27,6 +27,7 @@ BEGIN {
 		Utility=s
 		debug
 		Display
+		Term
 		help
 		output|out=s
 		/);
@@ -41,29 +42,96 @@ POEIKC::Client->use or do{lib->use('lib');POEIKC::Client->use or die $@} ;
 		print '@INC => '.Dumper(\@INC);
 	}
 
-my $client = POEIKC::Client->new();
+if ( exists $options->{Term} ) {
+	$options->{HOST} ||= 'localhost';
+	$options->{port} ||= 47225;
+	$options->{alias} ||= 'POEIKCd';
+	my $client = POEIKC::Client->new(
+		HOST	=>$options->{HOST}, 
+		port	=>$options->{port},
+		alias	=>$options->{alias},
+	);
 
-my ($state_name, $args) = $client->ikc_client_format($options, @ARGV) or pod2usage(1);
+	use Term::ReadLine;
+	my $term = new Term::ReadLine 'POEIKC::Client';
+	my $prompt = sprintf "%s:%d %s> ", $options->{HOST}, $options->{port}, $options->{alias};
+	#my $OUT = $term->OUT || \*STDOUT;
 
-#	$DEBUG and _DEBUG_log($state_name, $args);
+	eval {
+		while ( defined ($_ = $term->readline($prompt)) ) {
+			s/^\s+//;
+			s/\s+$//;
 
-if ($DEBUG or exists $options->{Display}){
-	my $param = ref $args ? Dumper($args): $args;
-	$param =~ s/\s+//g;
-	$param =~ s/\$VAR1=//g;
-	$param =~ s/;//g;
-	printf "\n# \$ikc_client->post_respond( '%s' => %s );\n\n",$state_name => $param ;
+			/^exit$|^quit$|^q$|^bye$/i and return;
+			/^-?help$|^-?h$|^-?\?$/i and do{print `poikc`;next};
+
+			@ARGV = split /\s+/, $_;
+			$options={};
+			$Getopt::Long::ignorecase=0;
+			GetOptions ($options, qw/
+				HOST=s 
+				port=i 
+				alias=s
+				state_name|state=s
+				INC|inc:s@
+				inc_=s
+				Utility=s
+				debug
+				Display
+				Term
+				help
+				output|out=s
+				/);
+			$options = {
+				HOST	=>$client->{HOST}, 
+				port	=>$client->{port},
+				alias	=>$client->{alias},
+				%{$options},
+			};
+			
+			$client->{HOST}  = $options->{HOST}; 
+			$client->{port}  = $options->{port};
+			$client->{alias} = $options->{alias};
+
+			$prompt = sprintf "%s:%d %s> ", $options->{HOST}, $options->{port}, $options->{alias};
+
+			my ($state_name, $args) = $client->ikc_client_format($options, @ARGV) or print "\n";
+			if ($state_name) {
+				print $client->post_respond($options, $state_name, $args), "\n";
+				print "\n";
+			}
+
+			warn $@ if $@;
+			$term->addhistory($_) if /\S/;
+		}
+	};
+	warn $@ if $@;
+
+}else{
+
+	my $client = POEIKC::Client->new();
+
+	my ($state_name, $args) = $client->ikc_client_format($options, @ARGV) or pod2usage(1);
+
+	#	$DEBUG and _DEBUG_log($state_name, $args);
+
+	if ($DEBUG or exists $options->{Display}){
+		my $param = ref $args ? Dumper($args): $args;
+		$param =~ s/\s+//g;
+		$param =~ s/\$VAR1=//g;
+		$param =~ s/;//g;
+		printf "\n# \$ikc_client->post_respond( '%s' => %s );\n\n",$state_name => $param ;
+	}
+
+	print $client->post_respond($options, $state_name, $args);
 }
-
-$client->post_respond($options, $state_name, $args);
-
 
 
 __END__
 
 =head1 NAME
 
-poikc - POK IKC (poeikcd) Client
+poikc - POE IKC (poeikcd) Client
 
 =head1 SYNOPSIS
 
@@ -129,6 +197,7 @@ eg:
 
     poikc -U=get_VERSION
     poikc -U=eval 'scalar `ps aux`'
+    poikc Cwd::getcwd
     poikc LWP::Simple::get  http://search.cpan.org/~suzuki/
 
     poikc -o=d -U=publish_IKC my_alias_name my_package_name
@@ -169,6 +238,5 @@ it under the same terms as Perl itself.
 =head1 SEE ALSO
 
 L<poeikcd>
-L<POE::Component::IKC::ClientLite>
 
 =cut

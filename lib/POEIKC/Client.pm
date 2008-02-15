@@ -10,6 +10,7 @@ use Data::Dumper;
 use Sys::Hostname ();
 use UNIVERSAL::require;
 use Best [ [ qw/YAML::XS YAML::Syck YAML/ ], qw/Dump/ ];
+use POE::Component::IKC::ClientLite;
 
 our $DEBUG;
 
@@ -98,14 +99,14 @@ sub ikc_client_format {
 
 	$options->{HOST} ||= '127.0.0.1';
 
-	if( Proc::ProcessTable->use ){
-		for my $ps( @{Proc::ProcessTable->new->table} ) {
-			if ($ps->{fname} eq 'poikc'){
-				$ps->{cmndline} =~ /poikc/;
-				$0 = $ps->{fname}. $';
-			}
-		}
-	}
+#	if( Proc::ProcessTable->use ){
+#		for my $ps( @{Proc::ProcessTable->new->table} ) {
+#			if ($ps->{fname} eq 'poikc'){
+#				$ps->{cmndline} =~ /poikc/;
+#				$0 = $ps->{fname}. $';
+#			}
+#		}
+#	}
 
 	if (exists $options->{debug}) {
 		_DEBUG_log($options);
@@ -126,20 +127,18 @@ sub post_respond {
 	my $self = shift;
 	my ($options, $state_name, $args) = @_;
 
-	use POE::Component::IKC::ClientLite;
 	my ($name) = join('_'=>Sys::Hostname::hostname, ($0 =~ /(\w+)/g), $$);
-	my $ikc = create_ikc_client(
+	my $ikc = $self->{ikc} ||= create_ikc_client(
 		ip   => $options->{HOST},
 		port => $options->{port},
 		name => $name,
 	);
 	$ikc or do{
-		printf "%s\n\n",$POE::Component::IKC::ClientLite::error; 
-		exit;
+		return sprintf "%s\n\n",$POE::Component::IKC::ClientLite::error; 
 	};
 
 	my $ret = $ikc->post_respond($state_name => $args);
-	$ikc->error and die($ikc->error);
+	$ikc->error and undef $self->{ikc}, return ($ikc->error), ;
 	no warnings;
 	if (my $r = ref $ret) {
 		if ( $options->{output} and $options->{output} =~ /^H[YD]$/i and  $r eq 'HASH'){
@@ -151,14 +150,14 @@ sub post_respond {
 			for(sort keys %ret){printf $format, $_, output($options->{output}, $ret{$_})}
 			print "\n";
 		}elsif ($options->{output}) {
-			print (output($options->{output},$ret));
+			return (output($options->{output},$ret));
 		}elsif (ref $ret) {
-			print(Dumper($ret));
+			return(Dumper($ret));
 		}else{
-			print($ret);
+			return($ret);
 		}
 	}else{
-		print(output($options->{output}, $ret));
+		return(output($options->{output}, $ret));
 	}
 }
 
@@ -206,15 +205,27 @@ __END__
 
 =head1 NAME
 
-POEIKC::Client -
+POEIKC::Client - 
 
 =head1 SYNOPSIS
 
-  use POEIKC::Client;
+	use POEIKC::Client;
+
+	my $client = POEIKC::Client->new();
+
+	my $options = {
+		'alias' => 'POEIKCd',
+		'port' => 47225
+	};
+
+	my ($state_name, $args) = $client->ikc_client_format($options, @ARGV) or die;
+
+	$client->post_respond($options, $state_name, $args);
+
 
 =head1 DESCRIPTION
 
-POEIKC is
+POEIKC::Client is for poikc
 
 =head1 AUTHOR
 
@@ -226,5 +237,7 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =head1 SEE ALSO
+
+L<POE::Component::IKC::ClientLite>
 
 =cut

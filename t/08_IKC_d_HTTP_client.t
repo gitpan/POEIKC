@@ -156,14 +156,6 @@ __END__
 --- input: ['IKC_d_HTTP','enqueue','http://search.cpan.org/~suzuki/']
 --- expected: 1
 
-=== 4	pass	sleep(1)	sleep
---- input: ['POEIKC::Daemon::Utility' => 'get_VERSION']
---- expected: 1
-
-=== 5	like	POEIKCd/event_respond	'POEIKCd/event_respond' => ['IKC_d_HTTP','dequeue']
---- input: ['IKC_d_HTTP','dequeue']
---- expected: html
-
 === 6	is	POEIKCd/method_respond	'POEIKCd/method_respond' => ['POEIKC::Daemon::Utility','publish_IKC','IKC_d_HTTP','IKC_d_HTTP_client']
 --- input: ['POEIKC::Daemon::Utility','publish_IKC','IKC_d_HTTP','IKC_d_HTTP_client']
 --- expected: 1
@@ -172,10 +164,3 @@ __END__
 --- input: ['http://search.cpan.org/~suzuki/']
 --- expected: 1
 
-=== 8	pass	sleep(1)	sleep
---- input: ['POEIKC::Daemon::Utility' => 'get_VERSION']
---- expected: 1
-
-=== 9	like	IKC_d_HTTP/dequeue_respond	'IKC_d_HTTP/dequeue_respond' => []
---- input: 
---- expected: html

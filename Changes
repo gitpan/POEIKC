@@ -1,4 +1,8 @@
 Revision history for Perl extension POEIKC
 
+0.00_01  Thu Feb 15 2008
+        - poeikcd : supported a parameter of IKC server.
+        - poikc : Added -T option. took in a terminal experimentally. There is malfunction.
+
 0.00_00  Thu Feb 14 00:57:56 2008
         - replaced from POEIKCdaemon to POEIKC.
