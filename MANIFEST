@@ -3,6 +3,7 @@ bin/poikc
 Changes
 eg/client_lite.pl
 eg/client_lite_eg.pl
+eg/lib/DBMedit.pm
 eg/t-chain.sh
 eg/t-IKC_d_HTTP_client.sh
 eg/t-inc.sh

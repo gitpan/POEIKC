@@ -141,7 +141,9 @@ sub post_respond {
 	$ikc->error and undef $self->{ikc}, return ($ikc->error), ;
 	no warnings;
 	if (my $r = ref $ret) {
+		$DEBUG and _DEBUG_log($r);
 		if ( $options->{output} and $options->{output} =~ /^H[YD]$/i and  $r eq 'HASH'){
+			$DEBUG and _DEBUG_log($ret);
 			$options->{output} =~ s/^H//i;
 			my %ret = %{$ret};
 			my $max = 0;
@@ -150,21 +152,35 @@ sub post_respond {
 			for(sort keys %ret){printf $format, $_, output($options->{output}, $ret{$_})}
 			print "\n";
 		}elsif ($options->{output}) {
+			$DEBUG and _DEBUG_log($ret);
 			return (output($options->{output},$ret));
 		}elsif (ref $ret) {
+			$DEBUG and _DEBUG_log($ret);
+
+			local $Data::Dumper::Terse    = 1; 
+			local $Data::Dumper::Sortkeys = 1; 
+			local $Data::Dumper::Indent   = 1; 
+
 			return(Dumper($ret));
 		}else{
-			return($ret);
+			$DEBUG and _DEBUG_log($ret);
+			return $ret;
 		}
 	}else{
-		return(output($options->{output}, $ret));
+		$DEBUG and _DEBUG_log($ret);
+		return output($options->{output}, $ret);
 	}
 }
 
 sub output {
 	my $output_flag = shift;
-	$DEBUG and _DEBUG_log(join "\t"=> caller(1));
+	$DEBUG and _DEBUG_log(join "\t"=> grep {defined $_} caller(1));
 	return unless @_;
+
+		local $Data::Dumper::Terse    = 1; 
+		local $Data::Dumper::Sortkeys = 1; 
+		local $Data::Dumper::Indent   = 1; 
+
 	for ($output_flag || ()) {
 		/^D$|^Dumper$/i and return Dumper(@_);
 		/^Y$|^YAML$/i   and return Dump(@_);
@@ -205,7 +221,7 @@ __END__
 
 =head1 NAME
 
-POEIKC::Client - 
+POEIKC::Client - Client for POE IKC daemon
 
 =head1 SYNOPSIS
 

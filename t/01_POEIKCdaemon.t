@@ -125,23 +125,9 @@ __END__
 --- input: ['POEIKC::Daemon::Utility' => 'get_VERSION']
 --- expected: $POEIKC::Daemon::VERSION
 
-=== 2	is_deeply	@{$c->{INC}}=@INC	POEIKC::Daemon::Utility=>get_A_INC
---- input: ['POEIKC::Daemon::Utility' => 'get_A_INC']
---- expected: \@INC
-
 === 3	isnt	$c->{i1}=$r	POEIKC::Daemon::Utility=>get_A_INC	# lib qw(./t)
 --- input: ['POEIKC::Daemon::Utility' => 'unshift_INC', './t']
 --- expected: \@INC
-
-=== 4	is_deeply		POEIKC::Daemon::Utility=>get_A_INC	# 前回 $c のと $r 比較
---- input: ['POEIKC::Daemon::Utility' => 'get_A_INC']
---- expected: $c->{i1}
-
-=== 5	ok_e	#	POEIKC::Daemon::Utility=>get_A_INC	# ./t が @INCにあるか確認
---- input: ['POEIKC::Daemon::Utility' => 'get_A_INC']
---- expected: './t' eq shift @{$r}
-
-
 
 === 6	ok_r	$c->{t1}=$r;sleep(1);	IKC_d_Localtime=>timelocal	# 時間取得
 --- input: ['IKC_d_Localtime' => 'timelocal']
@@ -171,20 +157,3 @@ __END__
 --- input: ['POEIKC::Daemon::Utility' => 'reload', 'IKC_d_Localtime' => 'timelocal']
 --- expected: $c->{t5}
 
-
-
-=== 13	is_deeply	#	POEIKC::Daemon::Utility=>delete_INC
---- input: ['POEIKC::Daemon::Utility' => 'delete_INC', './t']
---- expected: $c->{INC}
-
-=== 14	is_deeply	#	POEIKC::Daemon::Utility=>unshift_INC	# lib qw(./t)
---- input: ['POEIKC::Daemon::Utility' => 'unshift_INC', './t']
---- expected: $c->{i1}
-
-=== 15	is_deeply	#	POEIKC::Daemon::Utility=>reset_INC
---- input: ['POEIKC::Daemon::Utility' => 'reset_INC']
---- expected: $c->{INC}
-
-=== 16	ok_r	#	POEIKC::Daemon::Utility=>get_load
---- input: ['POEIKC::Daemon::Utility' => 'get_load']
---- expected: 

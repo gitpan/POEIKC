@@ -191,6 +191,15 @@ sub shutdown {
 	printf "%s PID:%s ... stopped!! (%s)\n", $0, $$, scalar(localtime);
 }
 
+sub _shutdown {
+	my $poe = sweet_args;
+	$poe->kernel->yield('__shutdown');
+}
+sub __shutdown {
+	my $poe = sweet_args;
+	$poe->kernel->yield('shutdown');
+}
+
 sub something_respond {
 	my $poe = sweet_args;
 	my $kernel = $poe->kernel;
@@ -281,8 +290,8 @@ sub execute_respond {
 	my @re = $object->pidu->execute(poe=>$poe, from=>$from, module=>$module, method=>$method, args=>$args);
 	my $e = $@ if $@;
 
-	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log($e);
-	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log(@re);
+	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log('error=>'=>$e);
+	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log('@re=>'=>@re);
 	my $re = @re == 1 ? shift @re : @re ? \@re : ();
 
 	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log($module, $method, $re);

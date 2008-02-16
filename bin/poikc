@@ -31,15 +31,24 @@ BEGIN {
 		help
 		output|out=s
 		/);
+	if (exists $options->{debug}) {
+		lib->use('lib');
+		local $Data::Dumper::Terse    = 1; 
+		local $Data::Dumper::Sortkeys = 1; 
+		local $Data::Dumper::Indent   = 1; 
+		print '@INC => '.Dumper(\@INC);
+	}
 }
 
-POEIKC::Client->use or do{lib->use('lib');POEIKC::Client->use or die $@} ;
+
+
+POEIKC::Client->use or die $@ ;
 
 	if (exists $options->{debug}) {
 		local $Data::Dumper::Terse    = 1; 
 		local $Data::Dumper::Sortkeys = 1; 
 		local $Data::Dumper::Indent   = 1; 
-		print '@INC => '.Dumper(\@INC);
+		POEIKC::Client::_DEBUG_log('@INC => ',\@INC);
 	}
 
 if ( exists $options->{Term} ) {
@@ -97,6 +106,7 @@ if ( exists $options->{Term} ) {
 
 			my ($state_name, $args) = $client->ikc_client_format($options, @ARGV) or print "\n";
 			if ($state_name) {
+				no warnings;
 				print $client->post_respond($options, $state_name, $args), "\n";
 				print "\n";
 			}
@@ -123,6 +133,7 @@ if ( exists $options->{Term} ) {
 		printf "\n# \$ikc_client->post_respond( '%s' => %s );\n\n",$state_name => $param ;
 	}
 
+	no warnings;
 	print $client->post_respond($options, $state_name, $args);
 }
 
