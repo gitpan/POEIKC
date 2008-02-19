@@ -1,5 +1,9 @@
 Revision history for Perl extension POEIKC
 
+0.00_03  Thu Feb 19 2008
+        - The revision of the 'Makefile.PL'.
+        - Directory rearranging in the inc directory.
+
 0.00_02  Thu Feb 16 2008
         - The revision of the test cord.
 

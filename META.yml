@@ -5,7 +5,6 @@ author:
 build_requires: 
   Cwd: 0
   POE::API::Peek: 0
-  Proc::ProcessTable: 0
   Test::Base: 0
   Test::More: 0
 distribution_type: module
@@ -32,8 +31,9 @@ requires:
   Pod::Usage: 0
   Proc::Daemon: 0
   Proc::Killall: 0
+  Proc::ProcessTable: 0
   Term::ReadLine: 0
   UNIVERSAL::require: 0
   YAML: 0
   perl: 5.8.1
-version: 0.00_02
+version: 0.00_03

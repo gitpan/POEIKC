@@ -17,12 +17,12 @@ requires('Proc::Daemon');
 requires('Pod::Usage');
 requires('Best');
 requires('YAML');
+requires 'Proc::ProcessTable';
 requires('Proc::Killall');
 requires('Term::ReadLine');
 
 build_requires 'Test::More';
 build_requires 'Test::Base';
-build_requires 'Proc::ProcessTable';
 build_requires 'Cwd';
 build_requires 'POE::API::Peek';
 

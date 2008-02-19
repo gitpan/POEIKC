@@ -1,8 +1,6 @@
 bin/poeikcd
 bin/poikc
 Changes
-eg/client_lite.pl
-eg/client_lite_eg.pl
 eg/lib/DBMedit.pm
 eg/t-chain.sh
 eg/t-IKC_d_HTTP_client.sh
@@ -25,7 +23,6 @@ inc/Module/Install/TestBase.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 inc/POE/API/Peek.pm
-inc/Proc/ProcessTable.pm
 inc/Spiffy.pm
 inc/Test/Base.pm
 inc/Test/Base/Filter.pm
