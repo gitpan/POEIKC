@@ -33,7 +33,8 @@ requires:
   Proc::Killall: 0
   Proc::ProcessTable: 0
   Term::ReadLine: 0
+  Text::ParseWords: 0
   UNIVERSAL::require: 0
   YAML: 0
   perl: 5.8.1
-version: 0.00_03
+version: 0.00_04

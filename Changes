@@ -1,5 +1,14 @@
 Revision history for Perl extension POEIKC
 
+0.00_04  Thu Feb 20 2008
+        - poikc : -T option. got possible to almost use the terminal. 
+                             supported an argument including the blank.
+        - poikc : -T option. Added a use command.
+            eg) 
+            $ poikc -T
+            localhost:47225 POEIKCd> use LWP::Simple
+            localhost:47225 POEIKCd> ::get http://search.cpan.org/~suzuki/
+
 0.00_03  Thu Feb 19 2008
         - The revision of the 'Makefile.PL'.
         - Directory rearranging in the inc directory.

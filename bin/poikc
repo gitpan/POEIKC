@@ -62,19 +62,29 @@ if ( exists $options->{Term} ) {
 	);
 
 	use Term::ReadLine;
+	use Text::ParseWords ();
 	my $term = new Term::ReadLine 'POEIKC::Client';
 	my $prompt = sprintf "%s:%d %s> ", $options->{HOST}, $options->{port}, $options->{alias};
 	#my $OUT = $term->OUT || \*STDOUT;
 
 	eval {
+		my $module_use;
+
+		#	### pre_func, post_func vvvvvvvvvvvvvvvvvvvvvvvvv
+		#	sub pre_func { }
+		#	sub pre_func { }
+
 		while ( defined ($_ = $term->readline($prompt)) ) {
 			s/^\s+//;
 			s/\s+$//;
 
+			/^no\s+(\w+)/ and do {undef $module_use};
+
 			/^exit$|^quit$|^q$|^bye$/i and return;
 			/^-?help$|^-?h$|^-?\?$/i and do{print `poikc`;next};
 
-			@ARGV = split /\s+/, $_;
+			@ARGV = Text::ParseWords::quotewords('\s+', 0, $_);
+
 			$options={};
 			$Getopt::Long::ignorecase=0;
 			GetOptions ($options, qw/
@@ -98,6 +108,15 @@ if ( exists $options->{Term} ) {
 				%{$options},
 			};
 			
+			#/^use\s+(\w+)/ and do {$module_use = $1; next};
+			if (/^use\s+(\S+)/) {
+				$module_use = $1;
+				$options->{Utility} = 'use';
+				$options->{state_name} = 'method_respond';
+				@ARGV=($module_use);
+			}
+
+
 			$client->{HOST}  = $options->{HOST}; 
 			$client->{port}  = $options->{port};
 			$client->{alias} = $options->{alias};
@@ -105,7 +124,21 @@ if ( exists $options->{Term} ) {
 			$prompt = sprintf "%s:%d %s> ", $options->{HOST}, $options->{port}, $options->{alias};
 
 			my ($state_name, $args) = $client->ikc_client_format($options, @ARGV) or print "\n";
+
+	if ($DEBUG or exists $options->{Display}) {
+		my $param = ref $args ? Dumper($args): $args;
+		$param =~ s/\s+//g;
+		$param =~ s/\$VAR1=//g;
+		$param =~ s/;//g;
+		printf "\n# \$ikc_client->post_respond( '%s' => %s );\n\n",$state_name => $param ;
+	}
+
+
 			if ($state_name) {
+				if ($args->[0] =~ /^::\w+/) {
+					$module_use or pod2usage(1);
+					$args->[0] = $module_use.$args->[0];
+				};
 				no warnings;
 				print $client->post_respond($options, $state_name, $args), "\n";
 				print "\n";
@@ -185,6 +218,16 @@ Options:
 
 Command:
 
+Terminal
+
+	-T  -Term			 : Terminal starting.
+
+				Terminal Command
+					use <Module::Name>
+					eg) poikc -T
+		            localhost:47225 POEIKCd> use LWP::Simple
+		            localhost:47225 POEIKCd> ::get http://search.cpan.org/~suzuki/
+
 @INC Operation
 
     -I  --INC=s          : specify @INC/#include directory
@@ -200,7 +243,7 @@ Command:
     poikc --inc_=delete ./t       ( @INC = grep {$_ ne './t'} @INC )
     poikc --inc_=reset
 
-pokikcd server shutdown  ( Please specify a host name.)
+pokikcd server shutdown
 
     poikc -H=hostname shutdown 
 

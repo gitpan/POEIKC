@@ -332,6 +332,14 @@ sub get_poe_api_peek {
 	return \@list;
 }
 
+sub get_methods {
+	my $self = shift;
+	my %args = @_;
+	my ($poe, $rsvp, $from, $args) = (
+		$args{poe}, $args{rsvp}, $args{from}, $args{args} );
+	my $module = shift @{$args{args}} or return;
+	return Class::Inspector->methods($module);
+}
 
 sub get_Class_Inspector {
 	my $self = shift;

@@ -20,6 +20,7 @@ requires('YAML');
 requires 'Proc::ProcessTable';
 requires('Proc::Killall');
 requires('Term::ReadLine');
+requires('Text::ParseWords');
 
 build_requires 'Test::More';
 build_requires 'Test::Base';
