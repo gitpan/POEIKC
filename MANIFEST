@@ -8,7 +8,6 @@ eg/t-inc.sh
 eg/t-loop_relay.sh
 eg/t-poeikcd.sh
 eg/t-relay.sh
-inc/Cwd.pm
 inc/Module/AutoInstall.pm
 inc/Module/Install.pm
 inc/Module/Install/AutoInstall.pm

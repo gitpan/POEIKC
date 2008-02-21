@@ -406,7 +406,7 @@ sub use {
 	$module ||=  shift @{$args{args}} or return;
 	return Class::Inspector->loaded( $module ) ? 1 : do{
 		$module->use() or return ;
-		$self->inc->{load}->{ $module } = [$INC{Class::Inspector->filename($module)},time] ;
+		$self->inc->{load}->{ $module } = [$INC{Class::Inspector->filename($module)},scalar localtime] ;
 		1;
 	}? 1 : ();
 }
@@ -441,7 +441,7 @@ sub reload {
 			push @deletelist, delete $INC{$_};
 		}
 		{no strict 'refs';%{"${module}::"}=();}
-		delete $self->inc->{load}->{$INC{Class::Inspector->filename($module)}};
+		delete $self->inc->{load}->{$module};
 	}
 
 	if( @{$args} >= 1) {

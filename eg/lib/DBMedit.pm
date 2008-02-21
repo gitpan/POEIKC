@@ -47,16 +47,26 @@ sub keys {
 	return (keys %{$DBM->{$name}})[$offset .. $length];
 }
 
-sub get {
-	my $key = shift;
-	return $DBM->{$name}->{$key};
-}
 
 sub del {
 	my $key = shift;
 	return delete $DBM->{$name}->{$key};
 }
 
+sub get {
+	my $key = shift;
+	return $DBM->{$name}->{$key};
+}
+
+sub like {
+	my $key = shift;
+	$key = qr/$key/;
+	my @list;
+	for (keys %{$DBM->{$name}}) {
+		/$key/ and push @list, $_;
+	}
+	return @list
+}
 
 sub gets {
 	#my ($offset, $length ) = @_;

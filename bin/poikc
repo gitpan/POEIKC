@@ -9,7 +9,6 @@ use Pod::Usage;
 use UNIVERSAL::require;
 use Data::Dumper;
 #use Sys::Hostname ();
-#use Best [ [ qw/YAML::XS YAML::Syck YAML/ ], qw/Dump/ ];
 
 my $options;
 my $DEBUG;
@@ -36,9 +35,11 @@ BEGIN {
 		local $Data::Dumper::Terse    = 1; 
 		local $Data::Dumper::Sortkeys = 1; 
 		local $Data::Dumper::Indent   = 1; 
-		print '@INC => '.Dumper(\@INC);
+		print('@INC => '. Dumper(\@INC));
+		print('%INC => '. Dumper(\%INC));
 	}
 }
+
 
 
 
@@ -49,6 +50,7 @@ POEIKC::Client->use or die $@ ;
 		local $Data::Dumper::Sortkeys = 1; 
 		local $Data::Dumper::Indent   = 1; 
 		POEIKC::Client::_DEBUG_log('@INC => ',\@INC);
+		POEIKC::Client::_DEBUG_log('%INC => ', Dumper \%INC);
 	}
 
 if ( exists $options->{Term} ) {
@@ -63,9 +65,17 @@ if ( exists $options->{Term} ) {
 
 	use Term::ReadLine;
 	use Text::ParseWords ();
+	use Best [ [ qw/YAML::XS YAML::Syck YAML/ ], qw/LoadFile DumpFile/ ];
+
 	my $term = new Term::ReadLine 'POEIKC::Client';
-	my $prompt = sprintf "%s:%d %s> ", $options->{HOST}, $options->{port}, $options->{alias};
+	my $format_prompt = "%s:%d %s> ";
+	my $prompt = sprintf $format_prompt, $options->{HOST}, $options->{port}, $options->{alias};
 	#my $OUT = $term->OUT || \*STDOUT;
+	
+	my $file_history = $ENV{HOME}.'/.poikc_history' if $ENV{HOME};
+	my $history = LoadFile($file_history) if -f $file_history ;
+	my $max_history = 100;
+	ref $history eq 'ARRAY' and $term->addhistory($_) for (@{$history});
 
 	eval {
 		my $module_use;
@@ -75,13 +85,15 @@ if ( exists $options->{Term} ) {
 		#	sub pre_func { }
 
 		while ( defined ($_ = $term->readline($prompt)) ) {
+			my $next_flag;
 			s/^\s+//;
 			s/\s+$//;
 
-			/^no\s+(\w+)/ and do {undef $module_use};
-
+			/^no\s+(\w+)/ and do {undef $module_use; ;$next_flag=1};
 			/^exit$|^quit$|^q$|^bye$/i and return;
-			/^-?help$|^-?h$|^-?\?$/i and do{print `poikc`;next};
+			/^-?help$|^-?h$|^-?\?$/i and do{pod2usage(-exitval  => 'NOEXIT', -verbose => 1);next};
+			/^history$/i and do{print join "\n"=>@{$history},"\n";$next_flag=1};
+			/^use$/i and do{$module_use and print($module_use, "\n");next};
 
 			@ARGV = Text::ParseWords::quotewords('\s+', 0, $_);
 
@@ -121,7 +133,7 @@ if ( exists $options->{Term} ) {
 			$client->{port}  = $options->{port};
 			$client->{alias} = $options->{alias};
 
-			$prompt = sprintf "%s:%d %s> ", $options->{HOST}, $options->{port}, $options->{alias};
+			$prompt = sprintf $format_prompt, $options->{HOST}, $options->{port}, $options->{alias};
 
 			my ($state_name, $args) = $client->ikc_client_format($options, @ARGV) or print "\n";
 
@@ -134,9 +146,10 @@ if ( exists $options->{Term} ) {
 	}
 
 
-			if ($state_name) {
-				if ($args->[0] =~ /^::\w+/) {
-					$module_use or pod2usage(1);
+			if ($state_name and not($next_flag)) {
+				if ($args->[0] =~ /^::\w+/ or $args->[0] =~ /^\w+$/) {
+					$module_use or do{pod2usage(-exitval  => 'NOEXIT', -verbose => 1);next};
+					$args->[0] = '::'.$args->[0] if $args->[0] !~ /^::/;
 					$args->[0] = $module_use.$args->[0];
 				};
 				no warnings;
@@ -145,7 +158,13 @@ if ( exists $options->{Term} ) {
 			}
 
 			warn $@ if $@;
-			$term->addhistory($_) if /\S/;
+			if (/\S/) {
+				$term->addhistory($_) ;
+				push @{$history}, $_;
+				#@{$history} = 
+				@{$history} = splice @{$history}, -$max_history if $max_history < @{$history};
+				DumpFile($file_history, $history) if $ENV{HOME};
+			}
 		}
 	};
 	warn $@ if $@;
@@ -220,13 +239,15 @@ Command:
 
 Terminal
 
-	-T  -Term			 : Terminal starting.
+    -T  -Term            : Terminal starting.
 
-				Terminal Command
-					use <Module::Name>
-					eg) poikc -T
-		            localhost:47225 POEIKCd> use LWP::Simple
-		            localhost:47225 POEIKCd> ::get http://search.cpan.org/~suzuki/
+            Terminal Command
+                history
+                     With  no  options,  display  the command history list.
+                use Module::Name
+                    eg) poikc -T
+                    localhost:47225 POEIKCd> use LWP::Simple
+                    localhost:47225 POEIKCd> ::get http://search.cpan.org/~suzuki/
 
 @INC Operation
 

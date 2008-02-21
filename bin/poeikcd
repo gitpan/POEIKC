@@ -5,6 +5,7 @@ use v5.8.1;
 
 use warnings;
 use Data::Dumper;
+use Cwd;
 use Getopt::Long;
 use Pod::Usage;
 use UNIVERSAL::require;
@@ -32,12 +33,13 @@ BEGIN {
 		help
 	/);
 	# $options->{foreground} # Run in the foreground
-
+	my $cwd = Cwd::getcwd;
 	unshift(@INC, 
-		map {s/~/$ENV{HOME}/;$_} 
+		map {s/~/$ENV{HOME}/;s{^\./}{$cwd/};s{^\w+}{$cwd/$&};;$_} 
 		map {split(/:/=>$_)} 
 		map {ref $_ ? @{$_} : $_} ($options->{INC})
 	) if (exists $options->{INC});
+	push @INC, $cwd;
 
 	map { $_->use or die $@ } map {ref $_ ? @{$_} : $_} ($options->{Module}) 
 		if (exists $options->{Module});

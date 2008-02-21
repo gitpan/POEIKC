@@ -1,5 +1,11 @@
 Revision history for Perl extension POEIKC
 
+0.00_05  Thu Feb 21 2008
+        - poeikcd : -I option. can put PATH at the time of the start in @INC.
+            eg) -I ./lib 
+        - poikc : -T option. Added a history command.
+                  history file path : $ENV{HOME}.'/.poikc_history'
+
 0.00_04  Thu Feb 20 2008
         - poikc : -T option. got possible to almost use the terminal. 
                              supported an argument including the blank.

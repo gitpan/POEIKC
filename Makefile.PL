@@ -4,6 +4,7 @@ use inc::Module::Install;
 name 'POEIKC';
 all_from 'lib/POEIKC.pm';
 
+requires 'Cwd';
 requires('Class::Accessor::Fast');
 requires('Class::Inspector');
 requires('UNIVERSAL::require');
@@ -24,7 +25,6 @@ requires('Text::ParseWords');
 
 build_requires 'Test::More';
 build_requires 'Test::Base';
-build_requires 'Cwd';
 build_requires 'POE::API::Peek';
 
 install_script('bin/poeikcd');

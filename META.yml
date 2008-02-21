@@ -3,7 +3,6 @@ abstract: POE IKC daemon and client
 author: 
   - Yuji Suzuki <yuji.suzuki.perl@gmail.com>
 build_requires: 
-  Cwd: 0
   POE::API::Peek: 0
   Test::Base: 0
   Test::More: 0
@@ -22,6 +21,7 @@ requires:
   Best: 0
   Class::Accessor::Fast: 0
   Class::Inspector: 0
+  Cwd: 0
   Getopt::Long: 0
   POE: 0
   POE::Component::IKC::ClientLite: 0
@@ -37,4 +37,4 @@ requires:
   UNIVERSAL::require: 0
   YAML: 0
   perl: 5.8.1
-version: 0.00_04
+version: 0.00_05

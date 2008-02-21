@@ -58,7 +58,7 @@ sub init {
 	#$self->pidu->stay(module=>'POEIKC::Daemon::Utility');
 
 	push @{$opt{Module}}, __PACKAGE__, 'POEIKC::Daemon::Utility';
-	$self->pidu->inc->{load}->{ $_ } = [$INC{Class::Inspector->filename($_)},time] for @{$opt{Module}};
+	$self->pidu->inc->{load}->{ $_ } = [$INC{Class::Inspector->filename($_)},scalar localtime] for @{$opt{Module}};
 
 	$0 = sprintf "poeikcd --alias=%s --port=%s",
 				$self->alias, $self->ikc_self_port ;#if $0 =~ /poeikcd/;

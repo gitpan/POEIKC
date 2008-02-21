@@ -59,8 +59,9 @@ FORK: {
 		$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log(\%cicopt);
 
 		if( Proc::ProcessTable->use ){
+			my $port = $options->{port};
 			for my $ps( @{Proc::ProcessTable->new->table} ) {
-				if ($ps->{pid} != $$ and $ps->{fname} eq 'poeikcd'){
+				if ($ps->{pid} != $$ and $ps->{fname} eq 'poeikcd' and $ps->{cmndline} =~ /--port=$port/){
 					plan skip_all => $ps->{cmndline}." .... already running \n";
 					die;
 				}
