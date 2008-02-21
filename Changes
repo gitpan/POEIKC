@@ -1,5 +1,8 @@
 Revision history for Perl extension POEIKC
 
+0.00_06  Thu Feb 21 2008
+        - poikc : -T option. decided to use 'Term::ReadLine::Gnu'.
+
 0.00_05  Thu Feb 21 2008
         - poeikcd : -I option. can put PATH at the time of the start in @INC.
             eg) -I ./lib 

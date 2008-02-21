@@ -23,9 +23,11 @@ requires('Proc::Killall');
 requires('Term::ReadLine');
 requires('Text::ParseWords');
 
+requires 'POE::API::Peek';
+requires 'Term::ReadLine::Gnu';
+
 build_requires 'Test::More';
 build_requires 'Test::Base';
-build_requires 'POE::API::Peek';
 
 install_script('bin/poeikcd');
 install_script('bin/poikc');

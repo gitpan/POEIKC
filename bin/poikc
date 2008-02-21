@@ -4,10 +4,11 @@ use strict;
 use v5.8.1;
 
 use warnings;
+use Data::Dumper;
 use Getopt::Long;
 use Pod::Usage;
 use UNIVERSAL::require;
-use Data::Dumper;
+use Class::Inspector;
 #use Sys::Hostname ();
 
 my $options;
@@ -64,18 +65,34 @@ if ( exists $options->{Term} ) {
 	);
 
 	use Term::ReadLine;
+	Term::ReadLine::Gnu->use;
 	use Text::ParseWords ();
 	use Best [ [ qw/YAML::XS YAML::Syck YAML/ ], qw/LoadFile DumpFile/ ];
+
+	my $max_history = 10;
+	my $file_history = $ENV{HOME}.'/.poikc_history' if $ENV{HOME};
 
 	my $term = new Term::ReadLine 'POEIKC::Client';
 	my $format_prompt = "%s:%d %s> ";
 	my $prompt = sprintf $format_prompt, $options->{HOST}, $options->{port}, $options->{alias};
 	#my $OUT = $term->OUT || \*STDOUT;
-	
-	my $file_history = $ENV{HOME}.'/.poikc_history' if $ENV{HOME};
-	my $history = LoadFile($file_history) if -f $file_history ;
-	my $max_history = 100;
-	ref $history eq 'ARRAY' and $term->addhistory($_) for (@{$history});
+
+	if (Class::Inspector->loaded('Term::ReadLine::Gnu')){
+		$term->using_history;
+		$term->StifleHistory($max_history);
+		$term->ReadHistory($file_history) ;
+		my $attribs = $term->Attribs;
+		$attribs->{completion_entry_function} = $attribs->{list_completion_function};
+		$attribs->{completion_word} = [qw(
+				history
+				exit
+				quit
+				help
+				use
+				no
+			)];
+	}
+
 
 	eval {
 		my $module_use;
@@ -92,7 +109,7 @@ if ( exists $options->{Term} ) {
 			/^no\s+(\w+)/ and do {undef $module_use; ;$next_flag=1};
 			/^exit$|^quit$|^q$|^bye$/i and return;
 			/^-?help$|^-?h$|^-?\?$/i and do{pod2usage(-exitval  => 'NOEXIT', -verbose => 1);next};
-			/^history$/i and do{print join "\n"=>@{$history},"\n";$next_flag=1};
+			/^history$/i and do{print join "\n"=>$term->GetHistory ,"\n";$next_flag=1} if (Class::Inspector->loaded('Term::ReadLine::Gnu'));
 			/^use$/i and do{$module_use and print($module_use, "\n");next};
 
 			@ARGV = Text::ParseWords::quotewords('\s+', 0, $_);
@@ -120,7 +137,6 @@ if ( exists $options->{Term} ) {
 				%{$options},
 			};
 			
-			#/^use\s+(\w+)/ and do {$module_use = $1; next};
 			if (/^use\s+(\S+)/) {
 				$module_use = $1;
 				$options->{Utility} = 'use';
@@ -160,10 +176,7 @@ if ( exists $options->{Term} ) {
 			warn $@ if $@;
 			if (/\S/) {
 				$term->addhistory($_) ;
-				push @{$history}, $_;
-				#@{$history} = 
-				@{$history} = splice @{$history}, -$max_history if $max_history < @{$history};
-				DumpFile($file_history, $history) if $ENV{HOME};
+				$term->WriteHistory($file_history) if (Class::Inspector->loaded('Term::ReadLine::Gnu'));
 			}
 		}
 	};
