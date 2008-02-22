@@ -2,7 +2,7 @@ package POEIKC;
 
 use strict;
 use 5.8.1;
-our $VERSION = '0.00_06';
+our $VERSION = '0.00_07';
 
 1;
 __END__

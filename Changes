@@ -1,5 +1,9 @@
 Revision history for Perl extension POEIKC
 
+0.00_07  Thu Feb -- 2008
+        - poikc : -T option. history resize.
+        - The revision of the 'Makefile.PL'. recommends 'Term::ReadLine::Gnu';
+
 0.00_06  Thu Feb 21 2008
         - poikc : -T option. decided to use 'Term::ReadLine::Gnu'.
 

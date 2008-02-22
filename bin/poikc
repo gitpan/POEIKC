@@ -69,7 +69,7 @@ if ( exists $options->{Term} ) {
 	use Text::ParseWords ();
 	use Best [ [ qw/YAML::XS YAML::Syck YAML/ ], qw/LoadFile DumpFile/ ];
 
-	my $max_history = 10;
+	my $max_history = 100;
 	my $file_history = $ENV{HOME}.'/.poikc_history' if $ENV{HOME};
 
 	my $term = new Term::ReadLine 'POEIKC::Client';

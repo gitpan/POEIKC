@@ -11,7 +11,6 @@ requires('UNIVERSAL::require');
 requires('Getopt::Long');
 requires('POE');
 requires('POE::Sugar::Args');
-requires('POE::Loop::IO_Poll');
 requires('POE::Component::IKC::Server');
 requires('POE::Component::IKC::ClientLite');
 requires('Proc::Daemon');
@@ -23,11 +22,28 @@ requires('Proc::Killall');
 requires('Term::ReadLine');
 requires('Text::ParseWords');
 
-requires 'POE::API::Peek';
-requires 'Term::ReadLine::Gnu';
-
 build_requires 'Test::More';
 build_requires 'Test::Base';
+
+features(
+#    'POD Testing' => [
+#        -default => 0,
+#        recommends('Test::Pod'),
+#        recommends('Test::Pod::Coverage'),
+#    ],
+    'Better POE::Loop' => [
+        -default => 0,
+        recommends('POE::Loop::IO_Poll'),
+    ],
+    'POE::API::Peek' => [
+        -default => 0,
+        recommends('POE::API::Peek'),
+    ],
+    'Better Term' => [
+        -default => 0,
+        recommends('Term::ReadLine::Gnu'),
+    ],
+);
 
 install_script('bin/poeikcd');
 install_script('bin/poikc');

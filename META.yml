@@ -16,6 +16,10 @@ no_index:
   directory: 
     - inc
     - t
+recommends: 
+  POE::API::Peek: 0
+  POE::Loop::IO_Poll: 0
+  Term::ReadLine::Gnu: 0
 requires: 
   Best: 0
   Class::Accessor::Fast: 0
@@ -23,19 +27,16 @@ requires:
   Cwd: 0
   Getopt::Long: 0
   POE: 0
-  POE::API::Peek: 0
   POE::Component::IKC::ClientLite: 0
   POE::Component::IKC::Server: 0
-  POE::Loop::IO_Poll: 0
   POE::Sugar::Args: 0
   Pod::Usage: 0
   Proc::Daemon: 0
   Proc::Killall: 0
   Proc::ProcessTable: 0
   Term::ReadLine: 0
-  Term::ReadLine::Gnu: 0
   Text::ParseWords: 0
   UNIVERSAL::require: 0
   YAML: 0
   perl: 5.8.1
-version: 0.00_06
+version: 0.00_07
