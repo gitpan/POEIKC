@@ -2,7 +2,7 @@ package POEIKC;
 
 use strict;
 use 5.8.1;
-our $VERSION = '0.00_07';
+our $VERSION = '0.01';
 
 1;
 __END__
@@ -44,5 +44,7 @@ it under the same terms as Perl itself.
 L<POE>
 L<POE::Component::IKC>
 L<POE::Component::IKC::Server>
+
+See L<http://arbolbell.jp/poeikcd/>   (Japanese site)
 
 =cut
