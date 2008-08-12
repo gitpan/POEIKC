@@ -43,6 +43,10 @@ features(
         -default => 0,
         recommends('Term::ReadLine::Gnu'),
     ],
+    'Date::Calc' => [
+        -default => 0,
+        recommends('Date::Calc'),
+    ],
 );
 
 install_script('bin/poeikcd');

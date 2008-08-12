@@ -542,7 +542,7 @@ sub _distinguish {
 
 sub _DEBUG_log {
 	$DEBUG or return;
-	Date::Calc->use or return;
+	Date::Calc->use or return(warn($@));
 	#YAML->use or return;
 	my ($pack, $file, $line, $subroutine) = caller(0);
 	my $levels_up = 0 ;

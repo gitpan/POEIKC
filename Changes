@@ -1,5 +1,9 @@
 Revision history for Perl extension POEIKC
 
+0.02     Wed Aug 13 2008
+        - added the option which could change a server name. 
+          By this, I can communicate between two server & clients!
+
 0.01     Thu Feb 27 2008
         - The official version
 

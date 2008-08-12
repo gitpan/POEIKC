@@ -26,7 +26,7 @@ our @inc = @INC;
 our %inc = %INC;
 our $DEBUG;
 
-__PACKAGE__->mk_accessors(qw/pidu argv alias ikc_self_port/);
+__PACKAGE__->mk_accessors(qw/pidu argv alias ikc_self_port ikc_self_name server_port server_name/);
 
 ####
 
@@ -44,7 +44,13 @@ sub init {
 	$self->argv($opt{argv}) if $opt{argv};
 	$self->alias($opt{alias} || 'POEIKCd');
 
-	$self->ikc_self_port($opt{port} || $ARGV[0] || 47225);
+	$opt{name} ||= join('_'=>__PACKAGE__ =~ m/(\w+)/g);
+	$self->server_name($opt{name});
+
+	$opt{port} ||= $ARGV[0] || 47225 ;
+	$self->server_port($opt{port});
+
+	$self->ikc_server_param(name		=>$opt{name});
 	$self->ikc_server_param(port		=>$opt{port});
 	$self->ikc_server_param(verbose		=>$opt{Verbose});
 	$self->ikc_server_param(processes	=>$opt{Processes});
@@ -61,7 +67,7 @@ sub init {
 	$self->pidu->inc->{load}->{ $_ } = [$INC{Class::Inspector->filename($_)},scalar localtime] for @{$opt{Module}};
 
 	$0 = sprintf "poeikcd --alias=%s --port=%s",
-				$self->alias, $self->ikc_self_port ;#if $0 =~ /poeikcd/;
+				$self->alias, $self->server_port ;#if $0 =~ /poeikcd/;
 	if ($DEBUG) {
 		no warnings 'redefine';
 		*POE::Component::IKC::Responder::DEBUG = sub { 1 };
@@ -89,11 +95,8 @@ sub poe_run {
 sub spawn
 {
 	my $self = shift;
-	my $name = join('_'=>__PACKAGE__ =~ m/(\w+)/g);
 	my %param = (
-		#port => $self->ikc_self_port ,
-		name => $name,
-		aliases  => [ $name .'_'. Sys::Hostname::hostname],
+		aliases  => [ $self->server_name .'_'. Sys::Hostname::hostname],
 		$self->ikc_server_param
 	);
 
