@@ -1,0 +1,16 @@
+Server and Client
+
+
+
+  poeikcd start -d -n=AAA -p=1111 -I=eg/lib:lib -M=SaC1
+  poeikcd start -d -n=BBB -p=2222 -I=eg/lib:lib -M=SaC2
+  
+  poikc -p=1111 -D  "SaC1->spawn" 
+  poikc -p=2222 -D  "SaC2->spawn" 
+
+  poikc -p=1111 -D  SaC1_alias ikc_client_spawn 
+  poikc -p=2222 -D  SaC2_alias ikc_client_spawn 
+
+  poikc -p=1111 -D  SaC1_alias go
+  poikc -p=2222 -D  SaC2_alias go
+

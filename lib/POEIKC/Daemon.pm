@@ -25,8 +25,12 @@ use POEIKC::Daemon::Utility;
 our @inc = @INC;
 our %inc = %INC;
 our $DEBUG;
+our %opt;
+our %connected;
 
 __PACKAGE__->mk_accessors(qw/pidu argv alias ikc_self_port ikc_self_name server_port server_name/);
+
+
 
 ####
 
@@ -39,7 +43,7 @@ sub ikc_server_param {
 sub init {
 	my $class = shift || __PACKAGE__ ;
 	my $self = $class->new;
-	my %opt = @_;
+	%opt = @_;
 	$DEBUG = $opt{debug};
 	$self->argv($opt{argv}) if $opt{argv};
 	$self->alias($opt{alias} || 'POEIKCd');
@@ -121,7 +125,7 @@ sub _start {
 	my $object = $poe->object;
 
 	printf "%s PID:%s ... Started!! (%s)\n", $0, $$, scalar(localtime);
-	
+
 	my $kernel = $poe->kernel;
 
 	$object->{start_time} = localtime;
@@ -137,7 +141,7 @@ sub _start {
 		IKC =>
 			#publish => $object->alias, Class::Inspector->methods(__PACKAGE__),
 			publish => $object->alias, [qw/
-				_stop 
+				_stop
 				event_respond
 				execute_respond
 				function_respond
@@ -148,25 +152,79 @@ sub _start {
 
 	if ($DEBUG) {
 		$kernel->post(IKC=>'monitor', '*'=>{
-			register=>'callback_register',
-			unregister =>'callback_unregister',
+			register	=>'debug_monitor_callback_register',
+			unregister	=>'debug_monitor_callback_unregister',
+			subscribe	=>'debug_monitor_callback_subscribe',
+			unsubscribe	=>'debug_monitor_callback_unsubscribe',
+			shutdown	=>'debug_monitor_callback_shutdown',
+			data		=>'(foo)',
+		});
+	}else{
+		$kernel->post(IKC=>'monitor', '*'=>{
+			register	=>'monitor_register',
+			unregister	=>'monitor_unregister',
 		});
 	}
 }
 
-sub callback_register
-{ 
+
+sub monitor_register
+{
 	my $poe = sweet_args ;
-	my (undef, $client, undef, $data ) = @{$poe->args};
-	POEIKC::Daemon::Utility::_DEBUG_log(register=>$client);
+	my $object = $poe->object;
+	my $client = (@{$poe->args})[1];
+	$connected{$client}++;
 }
 
-sub callback_unregister
-{ 
+sub monitor_unregister
+{
 	my $poe = sweet_args ;
-	my (undef, $client, undef, $data ) = @{$poe->args};
-	POEIKC::Daemon::Utility::_DEBUG_log(unregister=>$client);
+	my $object = $poe->object;
+	my $client = (@{$poe->args})[1];
+	delete $connected{$client} if $connected{$client};
 }
+
+
+
+
+sub debug_monitor_callback_register
+{
+	my $poe = sweet_args ;
+	my $object = $poe->object;
+	my $client = (@{$poe->args})[1];
+	$connected{$client}++;
+	POEIKC::Daemon::Utility::_DEBUG_log(join " / ", map {$_ ? $_ : ''} @{$poe->args});
+}
+
+sub debug_monitor_callback_unregister
+{
+	my $poe = sweet_args ;
+	my $object = $poe->object;
+	my $client = (@{$poe->args})[1];
+	delete $connected{$client} if $connected{$client};
+	POEIKC::Daemon::Utility::_DEBUG_log(join " / ", map {$_ ? $_ : ''} @{$poe->args});
+}
+
+sub debug_monitor_callback_subscribe
+{
+	my $poe = sweet_args ;
+	POEIKC::Daemon::Utility::_DEBUG_log(join " / ", map {$_ ? $_ : ''} @{$poe->args});
+}
+
+sub debug_monitor_callback_unsubscribe
+{
+	my $poe = sweet_args ;
+	POEIKC::Daemon::Utility::_DEBUG_log(join " / ", map {$_ ? $_ : ''} @{$poe->args});
+}
+
+sub debug_monitor_callback_shutdown
+{
+	my $poe = sweet_args ;
+	POEIKC::Daemon::Utility::_DEBUG_log(join " / ", map {$_ ? $_ : ''} @{$poe->args});
+}
+
+
+
 
 sub sig_stop {
 	my $poe = sweet_args;
@@ -190,7 +248,7 @@ sub shutdown {
 	$kernel->call( IKC => 'shutdown');
 	$kernel->stop();
 	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log();
-	killall('KILL', $0); # SIGKILL 
+	killall('KILL', $0); # SIGKILL
 	printf "%s PID:%s ... stopped!! (%s)\n", $0, $$, scalar(localtime);
 }
 
@@ -214,12 +272,12 @@ sub something_respond {
 	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log($request);
 
 	my @something = $object->pidu->_distinguish( poe=>$poe, args => $args );
-	@something ? 
+	@something ?
 		$kernel->call($session, execute_respond => @something, $rsvp):
 
 	$kernel->post( IKC => post => $rsvp, {poeikcd_error=>
 		'It is not discriminable. '.
-		q{"ModuleName::functionName" or  "ClassName->methodName" or "AliasName eventName"} 
+		q{"ModuleName::functionName" or  "ClassName->methodName" or "AliasName eventName"}
 	});
 }
 
@@ -254,7 +312,7 @@ sub execute_respond {
 	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log($from, $args, $rsvp);
 
 	ref $args ne 'ARRAY' and
-		return $kernel->call( IKC => post => $rsvp, 
+		return $kernel->call( IKC => post => $rsvp,
 		{poeikcd_error=>"A parameter is not an Array reference. It is ".ref $args} );
 
 	my $module = shift @{$args};
@@ -274,7 +332,7 @@ sub execute_respond {
 	if ($module eq 'POEIKC::Daemon::Utility'){
 		#$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log($rsvp);
 		my @re = eval {
-			$method ? 
+			$method ?
 			$object->pidu->$method(
 				poe=>$poe, rsvp=>$rsvp, from=>$from, args=>$args
 			) : grep {not /^\_/ and not /^[A-Z]+$/} @{Class::Inspector->methods($module)};
@@ -323,12 +381,12 @@ POEIKC::Daemon - POE IKC daemon
 
 L<poeikcd>
 
-	poeikcd start -p=47225 
-	poeikcd stop  -p=47225 
+	poeikcd start -p=47225
+	poeikcd stop  -p=47225
 	poeikcd --help
 
-And then 
-L<poikc> (POK IKC Client) 
+And then
+L<poikc> (POK IKC Client)
 
 	poikc -H hostname [options] args...
 	poikc --help
@@ -340,7 +398,7 @@ POEIKC::Daemon is daemon of POE::Component::IKC
 
 =head1 AUTHOR
 
-Yuji Suzuki E<lt>yuji.suzuki.perl@gmail.comE<gt>
+Yuji Suzuki E<lt>yujisuzuki@mail.arbolbell.jpE<gt>
 
 =head1 LICENSE
 

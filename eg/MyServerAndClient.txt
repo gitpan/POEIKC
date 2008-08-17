@@ -1,0 +1,12 @@
+
+  poeikcd start -d -n=AAAA -p=1111 -I=eg/lib:lib -M=MyServerAndClient
+  poeikcd start -d -n=BBBB -p=2222 -I=eg/lib:lib -M=MyServerAndClient
+
+  poikc -p=1111 -D "AndClient->spawn"
+  poikc -p=2222 -D "AndClient->spawn"
+
+  poikc -p=1111 -D AAAA_alias server_connect BBBB 2222
+
+  poikc -p=1111 -D AAAA_alias go BBBB 
+  poikc -p=2222 -D BBBB_alias go AAAA 
+

@@ -213,8 +213,16 @@ poikc - POE IKC (poeikcd) Client
 
   poikc -H hostname [options] args...
 
+If you want to carry out the function of the module, do it like next.
+
   poikc ModuleName::functionName  args...
+
+If you want to carry out a class method, do it like next.
+
   poikc "ClassName->methodName"   args...
+
+If you want to carry out an event of the POE, do it like next.
+
   poikc  AliasName eventName      args...
 
 Options:
@@ -316,7 +324,7 @@ poikc is POE IKC (L<poeikcd>) Client
 
 =head1 AUTHOR
 
-Yuji Suzuki E<lt>yuji.suzuki.perl@gmail.comE<gt>
+Yuji Suzuki E<lt>yujisuzuki@mail.arbolbell.jpE<gt>
 
 =head1 LICENSE
 

@@ -245,7 +245,7 @@ POEIKC::Client is for poikc
 
 =head1 AUTHOR
 
-Yuji Suzuki E<lt>yuji.suzuki.perl@gmail.comE<gt>
+Yuji Suzuki E<lt>yujisuzuki@mail.arbolbell.jpE<gt>
 
 =head1 LICENSE
 

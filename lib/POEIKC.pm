@@ -2,7 +2,7 @@ package POEIKC;
 
 use strict;
 use 5.8.1;
-our $VERSION = '0.02';
+our $VERSION = '0.02_01';
 
 1;
 __END__
@@ -32,7 +32,7 @@ And then L<poikc> is for poeikcd.
 
 =head1 AUTHOR
 
-Yuji Suzuki E<lt>yuji.suzuki.perl@gmail.comE<gt>
+Yuji Suzuki E<lt>yujisuzuki@mail.arbolbell.jpE<gt>
 
 =head1 LICENSE
 

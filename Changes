@@ -1,5 +1,9 @@
 Revision history for Perl extension POEIKC
 
+0.02_01   Sun Aug 17 2008
+        - Added "POEIKC::Daemon::AndClient"(fictitious name) to be able to 
+          easily communicate between poeikcd.
+
 0.02     Wed Aug 13 2008
         - added the option which could change a server name. 
           By this, I can communicate between two server & clients!
