@@ -1,24 +1,16 @@
-package MyServerAndClient;
+package MyP2P;
 
 use strict;
 use warnings;
-
 use Data::Dumper;
 use Class::Inspector;
-use POE qw(
-	Sugar::Args
-	Loop::IO_Poll
-);
-
-use base qw(POEIKC::Daemon::AndClient);
-
+use POE qw(Sugar::Args Loop::IO_Poll);
+use base qw(POEIKC::Daemon::P2P);
 use POEIKC::Daemon::Utility;
 
 sub new {
     my $class = shift ;
-    my $self = {
-        @_
-        };
+    my $self = {};
     $class = ref $class if ref $class;
     bless  $self,$class ;
     return $self ;
@@ -65,7 +57,7 @@ sub server_connect {
 	$port or die;
 
 	my $hash_param =	{
-		ip   => 'localhost', 
+		ip   => 'localhost',
 		port => $port ,
 		on_connect => sub {
 			POEIKC::Daemon::Utility::_DEBUG_log('on_connect');
@@ -90,7 +82,7 @@ sub go {
 #	$port or die;
 #
 #	my $hash_param =	{
-#		ip   => 'localhost', 
+#		ip   => 'localhost',
 #		port => $port ,
 #		on_connect => sub {
 #			$kernel->post($session, 'go', $server, $port );
@@ -123,14 +115,15 @@ sub callback {
 1;
 __END__
 
-  poeikcd start -d -n=AAAA -p=1111 -I=eg/lib:lib -M=MyServerAndClient
-  poeikcd start -d -n=BBBB -p=2222 -I=eg/lib:lib -M=MyServerAndClient
+  poeikcd start -d -n=ServerA -p=1111 -I=eg/lib:lib -M=MyP2P
+  poeikcd start -d -n=ServerB -p=2222 -I=eg/lib:lib -M=MyP2P
 
-  poikc -p=1111 -D "AndClient->spawn"
-  poikc -p=2222 -D "AndClient->spawn"
+  poikc -p=1111 -D "MyP2P->spawn"
+  poikc -p=2222 -D "MyP2P->spawn"
 
-  poikc -p=1111 -D AAAA_alias server_connect BBBB 2222
+  poikc -p=1111 -D ServerA_alias server_connect ServerB 2222
+        or  poikc -p=2222 -D ServerB_alias server_connect ServerA 1111
 
-  poikc -p=1111 -D AAAA_alias go BBBB 
-  poikc -p=2222 -D BBBB_alias go AAAA 
+  poikc -p=1111 -D ServerA_alias go ServerB
+  poikc -p=2222 -D ServerB_alias go ServerA
 

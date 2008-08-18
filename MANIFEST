@@ -5,11 +5,11 @@ eg/chain.sh
 eg/IKC_d_HTTP_client.sh
 eg/inc.sh
 eg/lib/DBMedit.pm
-eg/lib/MyServerAndClient.pm
+eg/lib/MyP2P.pm
 eg/lib/SaC1.pm
 eg/lib/SaC2.pm
 eg/loop_relay.sh
-eg/MyServerAndClient.txt
+eg/MyP2P.txt
 eg/poeikcd.sh
 eg/relay.sh
 eg/SaC.txt
@@ -35,7 +35,7 @@ inc/Test/More.pm
 lib/POEIKC.pm
 lib/POEIKC/Client.pm
 lib/POEIKC/Daemon.pm
-lib/POEIKC/Daemon/AndClient.pm
+lib/POEIKC/Daemon/P2P.pm
 lib/POEIKC/Daemon/Utility.pm
 Makefile.PL
 MANIFEST			This list of files

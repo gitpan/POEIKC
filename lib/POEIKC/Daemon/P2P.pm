@@ -1,4 +1,4 @@
-package POEIKC::Daemon::AndClient;
+package POEIKC::Daemon::P2P;
 
 use strict;
 use v5.8.1;
@@ -28,13 +28,13 @@ sub connect {
 	my ( $server, $hash , $delay) = @{$poe->args} ;
 	$delay ||= 0.2;
 
-	return $POEIKC::Daemon::connected{$server} 
+	return $POEIKC::Daemon::connected{$server}
 			if $server and $POEIKC::Daemon::connected{$server};
 
 	$POEIKC::Daemon::DEBUG and POEIKC::Daemon::Utility::_DEBUG_log($server, $delay, $hash);
 
 	$object->create_client( $hash, $server );
-	$kernel->delay(connect => $delay, $server, $hash, $delay); 
+	$kernel->delay(connect => $delay, $server, $hash, $delay);
 }
 
 
@@ -50,7 +50,7 @@ sub create_client {
 	my $hash = shift;
 	my $server = shift;
 
-	return $POEIKC::Daemon::connected{$server} 
+	return $POEIKC::Daemon::connected{$server}
 			if $server and $POEIKC::Daemon::connected{$server};
 
 	if ( $hash->{aliases} ) {
@@ -68,7 +68,7 @@ sub create_client {
 	}else{
 		push @{$hash->{aliases}}, ($POEIKC::Daemon::opt{name});
 	}
-	
+
 	$hash->{name} ||= $POEIKC::Daemon::opt{name} . join('_'=>__PACKAGE__ =~ m/(\w+)/g);
 
 	$POEIKC::Daemon::DEBUG and POEIKC::Daemon::Utility::_DEBUG_log($hash);
@@ -82,31 +82,23 @@ __END__
 
 =head1 NAME
 
-POEIKC::Daemon::AndClient - POE IKC daemon and client
+POEIKC::Daemon::P2P - A thing to communicate between poeikcd
 
 =head1 SYNOPSIS
 
-	package MyServerAndClient;
+	package MyP2P;
 
 	use strict;
 	use warnings;
-
 	use Data::Dumper;
 	use Class::Inspector;
-	use POE qw(
-		Sugar::Args
-		Loop::IO_Poll
-	);
-
-	use base qw(POEIKC::Daemon::AndClient);
-
+	use POE qw(Sugar::Args Loop::IO_Poll);
+	use base qw(POEIKC::Daemon::P2P);
 	use POEIKC::Daemon::Utility;
 
 	sub new {
 	    my $class = shift ;
-	    my $self = {
-	        @_
-	        };
+	    my $self = {};
 	    $class = ref $class if ref $class;
 	    bless  $self,$class ;
 	    return $self ;
@@ -128,7 +120,6 @@ POEIKC::Daemon::AndClient - POE IKC daemon and client
 		my $object  = $poe->object ;
 		my $alias   = $POEIKC::Daemon::opt{name}.'_alias';
 		$kernel->alias_set($alias);
-
 		$kernel->call(
 			IKC =>
 				publish => $alias, Class::Inspector->methods(__PACKAGE__),
@@ -153,7 +144,7 @@ POEIKC::Daemon::AndClient - POE IKC daemon and client
 		$port or die;
 
 		my $hash_param =	{
-			ip   => 'localhost', 
+			ip   => 'localhost',
 			port => $port ,
 			on_connect => sub {
 				POEIKC::Daemon::Utility::_DEBUG_log('on_connect');
@@ -162,9 +153,7 @@ POEIKC::Daemon::AndClient - POE IKC daemon and client
 				POEIKC::Daemon::Utility::_DEBUG_log('on_error');
 			},
 		};
-
 		$kernel->yield(connect=> $server, $hash_param) unless $object->connected($server);
-
 	}
 
 	sub go {
@@ -190,23 +179,24 @@ POEIKC::Daemon::AndClient - POE IKC daemon and client
 
 	1;
 
-then ..
+and then ...
 
-  poeikcd start -d -n=AAAA -p=1111 -I=eg/lib -M=MyServerAndClient
-  poeikcd start -d -n=BBBB -p=2222 -I=eg/lib -M=MyServerAndClient
+  poeikcd start -d -n=ServerA -p=1111 -I=eg/lib:lib -M=MyP2P
+  poeikcd start -d -n=ServerB -p=2222 -I=eg/lib:lib -M=MyP2P
 
-  poikc -p=1111 -D "AndClient->spawn"
-  poikc -p=2222 -D "AndClient->spawn"
+  poikc -p=1111 -D "MyP2P->spawn"
+  poikc -p=2222 -D "MyP2P->spawn"
 
-  poikc -p=1111 -D AAAA_alias server_connect BBBB 2222
+  poikc -p=1111 -D ServerA_alias server_connect ServerB 2222
+        or  poikc -p=2222 -D ServerB_alias server_connect ServerA 1111
 
-  poikc -p=1111 -D AAAA_alias go BBBB 
-  poikc -p=2222 -D BBBB_alias go AAAA 
+  poikc -p=1111 -D ServerA_alias go ServerB
+  poikc -p=2222 -D ServerB_alias go ServerA
 
 
 =head1 DESCRIPTION
 
-use it to communicate between poeikcd.
+use it to communicate between poeikcd. (peer-to-peer)
 
 =head1 AUTHOR
 
@@ -219,6 +209,7 @@ it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
+L<POE::Component::IKC>
 L<POE::Component::IKC::Client>
 
 =cut

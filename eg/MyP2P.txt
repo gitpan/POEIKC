@@ -1,0 +1,12 @@
+
+  poeikcd start -d -n=ServerA -p=1111 -I=eg/lib:lib -M=MyP2P
+  poeikcd start -d -n=ServerB -p=2222 -I=eg/lib:lib -M=MyP2P
+
+  poikc -p=1111 -D "MyP2P->spawn"
+  poikc -p=2222 -D "MyP2P->spawn"
+
+  poikc -p=1111 -D ServerA_alias server_connect ServerB 2222
+        or  poikc -p=2222 -D ServerB_alias server_connect ServerA 1111
+
+  poikc -p=1111 -D ServerA_alias go ServerB
+  poikc -p=2222 -D ServerB_alias go ServerA
