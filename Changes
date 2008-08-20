@@ -1,8 +1,11 @@
 Revision history for Perl extension POEIKC
 
+0.02_03   Thu Aug 21 2008
+        - added a test of "POEIKC::Daemon::P2P"
+
 0.02_02   Mon Aug 18 2008
         - "POEIKC::Daemon::AndClient" changed a name in "POEIKC::Daemon::P2P".
-        -  As for poeikcd, the network constitution of the Peer-to-Peer model was enabled.
+           As for poeikcd, the network constitution of the Peer-to-Peer model was enabled.
 
 0.02_01   Sun Aug 17 2008
         - Added "POEIKC::Daemon::AndClient"(fictitious name) to be able to 

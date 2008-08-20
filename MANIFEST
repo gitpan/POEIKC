@@ -46,10 +46,12 @@ t/01_POEIKCdaemon.t
 t/02_chain.t
 t/02_loop.t
 t/02_relay.t
+t/03_p2p.t
 t/08_IKC_d_HTTP_client.t
 t/Demo/Chain.pm
 t/Demo/Demo.pm
 t/Demo/Loop.pm
+t/Demo/P2P.pm
 t/Demo/Relay.pm
 t/IKC_d_HTTP_client.pm
 t/IKC_d_Localtime.pm

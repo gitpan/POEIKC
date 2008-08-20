@@ -1,7 +1,8 @@
 package POEIKC::Daemon;
 
 use strict;
-use v5.8.1;
+
+use 5.008_001;#use v5.8.1;
 
 use warnings;
 use Data::Dumper;

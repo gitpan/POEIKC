@@ -1,7 +1,7 @@
 package POEIKC::Daemon::P2P;
 
 use strict;
-use v5.8.1;
+use 5.008_001;
 
 use warnings;
 use Data::Dumper;
@@ -26,15 +26,15 @@ sub connect {
 	my $object = $poe->object;
 	my $session = $poe->session;
 	my ( $server, $hash , $delay) = @{$poe->args} ;
-	$delay ||= 0.2;
 
 	return $POEIKC::Daemon::connected{$server}
 			if $server and $POEIKC::Daemon::connected{$server};
 
 	$POEIKC::Daemon::DEBUG and POEIKC::Daemon::Utility::_DEBUG_log($server, $delay, $hash);
 
-	$object->create_client( $hash, $server );
-	$kernel->delay(connect => $delay, $server, $hash, $delay);
+	my $ret = $object->create_client( $hash, $server );
+	$delay and $kernel->delay(connect => $delay, $server, $hash, $delay);
+	return $ret;
 }
 
 
@@ -82,7 +82,7 @@ __END__
 
 =head1 NAME
 
-POEIKC::Daemon::P2P - A thing to communicate between poeikcd
+POEIKC::Daemon::P2P - The thing which does Peer-to-Peer in poeikcd
 
 =head1 SYNOPSIS
 
@@ -111,6 +111,7 @@ POEIKC::Daemon::P2P - A thing to communicate between poeikcd
 		my $session = POE::Session->create(
 		    object_states => [ $self => Class::Inspector->methods(__PACKAGE__) ]
 		);
+		print('LINE:',__LINE__,"\t", 'spawn', "\n");
 		return $session->ID;
 	}
 
@@ -120,18 +121,14 @@ POEIKC::Daemon::P2P - A thing to communicate between poeikcd
 		my $object  = $poe->object ;
 		my $alias   = $POEIKC::Daemon::opt{name}.'_alias';
 		$kernel->alias_set($alias);
+
 		$kernel->call(
 			IKC =>
 				publish => $alias, Class::Inspector->methods(__PACKAGE__),
 		);
+		print('LINE:'.__LINE__."\t" , '_start', "\n");
 	}
 
-	sub catch {
-		my $poe     = sweet_args ;
-		my ( @data ) = @{$poe->args} ;
-		POEIKC::Daemon::Utility::_DEBUG_log(@data);
-		return [[$$, __PACKAGE__,__LINE__], \@data];
-	}
 
 	sub server_connect {
 		my $poe     = sweet_args ;
@@ -147,13 +144,15 @@ POEIKC::Daemon::P2P - A thing to communicate between poeikcd
 			ip   => 'localhost',
 			port => $port ,
 			on_connect => sub {
-				POEIKC::Daemon::Utility::_DEBUG_log('on_connect');
+				print('LINE:'.__LINE__."\t" , 'on_connect', "\n");
 			},
 			on_error =>sub {
-				POEIKC::Daemon::Utility::_DEBUG_log('on_error');
+				print('LINE:'.__LINE__."\t" , 'on_error', "\n");
 			},
 		};
+
 		$kernel->yield(connect=> $server, $hash_param) unless $object->connected($server);
+
 	}
 
 	sub go {
@@ -165,24 +164,38 @@ POEIKC::Daemon::P2P - A thing to communicate between poeikcd
 
 		my $call = sprintf "poe://%s/%s/catch", $server, $server.'_alias';
 		my $back = "poe:callback";
+		my $ONE_arg= [ 'PID:'.$$, 'LINE:'.__LINE__ ];
+		print('LINE:'.__LINE__."  " ,"go\t", Dumper([$call, $back, $ONE_arg]), "\n");
 
-		POEIKC::Daemon::Utility::_DEBUG_log([$call, $back]);
+		$kernel->post('IKC', 'call', $call, $ONE_arg , $back);
+	}
 
-		$kernel->post('IKC', 'call', $call, $$.__PACKAGE__.':'.__LINE__, $back);
+	sub catch {
+		my $poe     = sweet_args ;
+		my ( @data ) = @{$poe->args} ;
+		print('LINE:'.__LINE__."  " ,"catch\t", Dumper(\@data), "\n");
+		return [$$, \@data];
 	}
 
 	sub callback {
 		my $poe 	= sweet_args;
 		my ( @data ) = @{$poe->args} ;
-		POEIKC::Daemon::Utility::_DEBUG_log( [[$$, __PACKAGE__, __LINE__], \@data]);
+		print('LINE:'.__LINE__."  ","callback\t",  Dumper(\@data), "\n");
 	}
 
 	1;
 
 and then ...
 
-  poeikcd start -d -n=ServerA -p=1111 -I=eg/lib:lib -M=MyP2P
-  poeikcd start -d -n=ServerB -p=2222 -I=eg/lib:lib -M=MyP2P
+At one terminal. 
+
+  poeikcd start -f -n=ServerA -p=1111 -I=eg/lib:lib -M=MyP2P
+
+And at another terminal.
+
+  poeikcd start -f -n=ServerB -p=2222 -I=eg/lib:lib -M=MyP2P
+
+At another terminal.
 
   poikc -p=1111 -D "MyP2P->spawn"
   poikc -p=2222 -D "MyP2P->spawn"

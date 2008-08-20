@@ -1,7 +1,7 @@
 package POEIKC::Client;
 
 use strict;
-use 5.8.1;
+use 5.008_001;
 
 use warnings;
 use Getopt::Long;

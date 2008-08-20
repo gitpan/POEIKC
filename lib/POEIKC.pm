@@ -2,7 +2,7 @@ package POEIKC;
 
 use strict;
 use 5.8.1;
-our $VERSION = '0.02_02';
+our $VERSION = '0.02_03';
 
 1;
 __END__
@@ -15,12 +15,12 @@ POEIKC - POE IKC daemon and client
 
 L<poeikcd> (daemon)
 
-	poeikcd start -p=47225 
-	poeikcd stop  -p=47225 
+	poeikcd start -p=47225
+	poeikcd stop  -p=47225
 	poeikcd --help
 
-And then 
-L<poikc> (client) 
+And then
+L<poikc> (client)
 
 	poikc -H hostname [options] args...
 	poikc --help
