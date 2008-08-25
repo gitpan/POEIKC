@@ -2,14 +2,14 @@ package POEIKC;
 
 use strict;
 use 5.8.1;
-our $VERSION = '0.02_03';
+our $VERSION = '0.02_04';
 
 1;
 __END__
 
 =head1 NAME
 
-POEIKC - POE IKC daemon and client
+POEIKC - A framework to make a daemon or P2P with "PoCo::IKC"
 
 =head1 SYNOPSIS
 

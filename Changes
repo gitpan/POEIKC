@@ -1,5 +1,8 @@
 Revision history for Perl extension POEIKC
 
+0.02_04   Thu Aug 25 2008
+        - revised a test script.
+
 0.02_03   Thu Aug 21 2008
         - added a test of "POEIKC::Daemon::P2P"
 

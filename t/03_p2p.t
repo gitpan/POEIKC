@@ -1,8 +1,7 @@
 use strict;
-use Test::More tests => 4;
-
-BEGIN { use_ok 'POEIKC::Daemon' }
-BEGIN { use_ok 'POEIKC::Daemon::P2P' }
+use Test::More;
+use POEIKC::Daemon;
+use POEIKC::Daemon::P2P;
 
 use strict;
 use lib qw(t);
@@ -50,9 +49,10 @@ foreach my $options (@options){
 	my @ikc;
 	for (@client_opt){
 		my $ikc = create_ikc_client(%{$_});
-		$ikc or die;
+		$ikc or plan skip_all => '';
 		push @ikc, $ikc;
 	}
+
 
 	my $sa = $ikc[0]->post_respond( 'POEIKCd/something_respond' => ['Demo::P2P->spawn'] );
 	my $sb = $ikc[1]->post_respond( 'POEIKCd/something_respond' => ['Demo::P2P->spawn'] );
@@ -71,7 +71,10 @@ sleep 1;
 	$sb = $ikc[1]->post_respond( 'POEIKCd/something_respond' => ['ServerB_alias','get'] );
 #print "\nsa=> $sa\n", Dumper $sa;
 #print "\nsb=> $sb\n", Dumper $sb;
+ref $sa ne 'HASH' and plan skip_all => '';
+ref $sb ne 'HASH' and plan skip_all => '';
 
+plan tests => 2;
 is($sa->{this_pid} , $sb->{catch}->{PID}, "PID");
 is($sb->{this_pid} , $sa->{catch}->{PID}, "PID");
 
