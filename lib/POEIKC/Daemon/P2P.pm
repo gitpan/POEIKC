@@ -93,8 +93,10 @@ POEIKC::Daemon::P2P - The thing which does Peer-to-Peer in poeikcd
 	use Data::Dumper;
 	use Class::Inspector;
 	use POE qw(Sugar::Args Loop::IO_Poll);
-	use base qw(POEIKC::Daemon::P2P);
 	use POEIKC::Daemon::Utility;
+
+	# use base ...
+	use base qw(POEIKC::Daemon::P2P);
 
 	sub new {
 	    my $class = shift ;
@@ -140,6 +142,8 @@ POEIKC::Daemon::P2P - The thing which does Peer-to-Peer in poeikcd
 		$server or die;
 		$port or die;
 
+		# A parameter of HASH is a parameter of create_ikc_client.
+		# See POE::Component::IKC::Clien
 		my $hash_param =	{
 			ip   => 'localhost',
 			port => $port ,
@@ -151,7 +155,11 @@ POEIKC::Daemon::P2P - The thing which does Peer-to-Peer in poeikcd
 			},
 		};
 
-		$kernel->yield(connect=> $server, $hash_param) unless $object->connected($server);
+		# Is it already connected? can confirm it
+		if (not $object->connected($server)) {
+			# Then connected.
+			$kernel->yield(connect=> $server, $hash_param) ;
+		}
 
 	}
 

@@ -1,5 +1,9 @@
 Revision history for Perl extension POEIKC
 
+0.02_05   Thu Aug 28 2008
+        - revised a test script.
+        - corrected a document.
+
 0.02_04   Thu Aug 25 2008
         - revised a test script.
 
