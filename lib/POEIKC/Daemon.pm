@@ -230,7 +230,7 @@ sub debug_monitor_callback_shutdown
 sub sig_stop {
 	my $poe = sweet_args;
 	my $kernel = $poe->kernel;
-	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log();
+	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log(\%connected);
 	$kernel->yield('_stop');
 }
 
@@ -239,28 +239,32 @@ sub _stop {
 	my $kernel = $poe->kernel;
 	$kernel->call( IKC => 'shutdown');
 	$kernel->stop();
-	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log();
+	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log(\%connected);
 	printf "%s PID:%s ... stopped!! (%s)\n", $0, $$, scalar(localtime);
 }
 
 sub shutdown {
 	my $poe = sweet_args;
 	my $kernel = $poe->kernel;
+	my $object = $poe->object;
+	$object->{shutdown_time} ||= time;
+	$object->{shutdown_cut} ||= 0;
+	if ( $object->{shutdown_cut} < 10 and keys %connected ) {
+		$object->{shutdown_cut}++;
+		$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log($object->{shutdown_time});
+		$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log(\%connected);
+		$kernel->delay(shutdown => 0.05);
+#		$kernel->delay(shutdown => 0.0001);
+		return;
+	}
 	$kernel->call( IKC => 'shutdown');
 	$kernel->stop();
-	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log();
+	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log($object->{shutdown_time});
+	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log(\%connected);
 	killall('KILL', $0); # SIGKILL
 	printf "%s PID:%s ... stopped!! (%s)\n", $0, $$, scalar(localtime);
 }
 
-sub _shutdown {
-	my $poe = sweet_args;
-	$poe->kernel->yield('__shutdown');
-}
-sub __shutdown {
-	my $poe = sweet_args;
-	$poe->kernel->yield('shutdown');
-}
 
 sub something_respond {
 	my $poe = sweet_args;

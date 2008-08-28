@@ -23,8 +23,8 @@ my $options = {
   'INC' => [
              './t'
            ],
-  'alias' => 'POEIKCd',
-  'port' => 47225
+  'alias' => 'POEIKCd_t',
+  'port' => 49225
 };
 
 if ($DEBUG) {
@@ -76,7 +76,7 @@ FORK: {
 		run {
 			my $t = shift;
 			my ($no, $type, $state, $name, $comment) = split /\t/, $t->name ;
-			
+
 			my $i = $t->input ;
 			my $e;
 			my $seq_num = $t->seq_num ;
@@ -84,7 +84,7 @@ FORK: {
 			$r = $ikc->post_respond(
 				$state => eval $i) if $type ne 'pass';
 				$ikc->error and die($ikc->error);
-			
+
 			eval $state if defined $state and $type eq 'pass';
 
 			$e = $type ne 'like' ? eval $t->expected : $t->expected;
@@ -101,7 +101,7 @@ FORK: {
 			$type eq 'pass'	and pass('...');
 		};
 
-		$ikc->post_respond($options->{alias}.'/method_respond', 
+		$ikc->post_respond($options->{alias}.'/method_respond',
 			['POEIKC::Daemon::Utility','shutdown']
 		);
 		$ikc->error and die($ikc->error);
@@ -111,36 +111,36 @@ FORK: {
 
 __END__
 
-=== 1	is	POEIKCd/method_respond	POEIKC::Daemon::Utility=>get_VERSION
+=== 1	is	POEIKCd_t/method_respond	POEIKC::Daemon::Utility=>get_VERSION
 --- input: ['POEIKC::Daemon::Utility' => 'get_VERSION']
 --- expected: $POEIKC::Daemon::VERSION
 
-=== 2	is	POEIKCd/method_respond	 'POEIKCd/method_respond' => ['POEIKC::Daemon::Utility','chain','Demo::Chain::chain_test','chain_1,chain_2','765']
+=== 2	is	POEIKCd_t/method_respond	 'POEIKCd_t/method_respond' => ['POEIKC::Daemon::Utility','chain','Demo::Chain::chain_test','chain_1,chain_2','765']
 --- input: ['POEIKC::Daemon::Utility','chain','Demo::Chain::chain_test','chain_1,chain_2','765']
 --- expected: 'Demo_chain_test_chain'
 
-=== 3	ok_e	POEIKCd/something_respond	'POEIKCd/something_respond' => ['Demo::Chain::get'] 
---- input: ['Demo::Chain::get'] 
+=== 3	ok_e	POEIKCd_t/something_respond	'POEIKCd_t/something_respond' => ['Demo::Chain::get']
+--- input: ['Demo::Chain::get']
 --- expected: $r->{chain_cut} == 3
 
-=== 4	ok_e	POEIKCd/something_respond	'POEIKCd/something_respond' => ['Demo::Chain::get'] 
---- input: ['Demo::Chain::get'] 
+=== 4	ok_e	POEIKCd_t/something_respond	'POEIKCd_t/something_respond' => ['Demo::Chain::get']
+--- input: ['Demo::Chain::get']
 --- expected: $r->{chain_list}->[0] == 765
 
-=== 5	ok_e	POEIKCd/something_respond	'POEIKCd/something_respond' => ['Demo::Chain::get'] 
---- input: ['Demo::Chain::get'] 
+=== 5	ok_e	POEIKCd_t/something_respond	'POEIKCd_t/something_respond' => ['Demo::Chain::get']
+--- input: ['Demo::Chain::get']
 --- expected: $r->{chain_list}->[1] == 1
 
-=== 6	ok_e	POEIKCd/something_respond	'POEIKCd/something_respond' => ['Demo::Chain::get'] 
---- input: ['Demo::Chain::get'] 
+=== 6	ok_e	POEIKCd_t/something_respond	'POEIKCd_t/something_respond' => ['Demo::Chain::get']
+--- input: ['Demo::Chain::get']
 --- expected: $r->{chain_list}->[2] == 2
 
-=== 7	ok_e	POEIKCd/something_respond	'POEIKCd/something_respond' => ['Demo::Chain::get'] 
---- input: ['Demo::Chain::get'] 
+=== 7	ok_e	POEIKCd_t/something_respond	'POEIKCd_t/something_respond' => ['Demo::Chain::get']
+--- input: ['Demo::Chain::get']
 --- expected: $r->{chain_sub_list}->[0] eq 'Demo::Chain::chain_1',
 
-=== 8	ok_e	POEIKCd/something_respond	'POEIKCd/something_respond' => ['Demo::Chain::get'] 
---- input: ['Demo::Chain::get'] 
+=== 8	ok_e	POEIKCd_t/something_respond	'POEIKCd_t/something_respond' => ['Demo::Chain::get']
+--- input: ['Demo::Chain::get']
 --- expected: $r->{chain_sub_list}->[1] eq 'Demo::Chain::chain_2',
 
 

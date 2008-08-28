@@ -17,8 +17,8 @@ $| = 1;
 
 my $options = {
 #  'debug' => $DEBUG,
-  'alias' => 'POEIKCd',
-  'port' => 47225
+  'alias' => 'POEIKCd_t',
+  'port' => 49225
 };
 
 if ($DEBUG) {
@@ -81,7 +81,7 @@ FORK: {
 		run {
 			my $t = shift;
 			my ($no, $type, $v, $name, $comment) = split /\t/, $t->name ;
-			
+
 			my $i = $t->input ;
 			my $e;
 			my $seq_num = $t->seq_num ;
@@ -89,7 +89,7 @@ FORK: {
 			$r = $ikc->post_respond(
 				$options->{alias}.'/method_respond' => eval $i);
 				$ikc->error and die($ikc->error);
-			
+
 #			POEIKC::Daemon::Utility::_DEBUG_log($seq_num,$c);
 			eval $v if defined $v;
 #			POEIKC::Daemon::Utility::_DEBUG_log($seq_num,$c);
@@ -111,8 +111,8 @@ FORK: {
 			$type eq 'pass'	and pass;
 		};
 
-		# 'POEIKCd/method_respond' => ['POEIKC::Daemon::Utility','stop','POEIKC::Daemon::Utility','stop'] 
-		$ikc->post_respond($options->{alias}.'/method_respond', 
+		# 'POEIKCd_t/method_respond' => ['POEIKC::Daemon::Utility','stop','POEIKC::Daemon::Utility','stop']
+		$ikc->post_respond($options->{alias}.'/method_respond',
 			['POEIKC::Daemon::Utility','shutdown']
 		);
 		$ikc->error and die($ikc->error);

@@ -46,7 +46,7 @@ sub shutdown {
 		$args{poe}, $args{rsvp}, $args{from}, $args{args} );
 	my ($alias, $event_ary) = ($args{alias}, $args{event});
 
-	$poe->kernel->yield('_shutdown');
+	$poe->kernel->yield('shutdown');
 	return sprintf("%s PID:%s ... stopped!! (%s)\n", $0, $$, scalar(localtime));
 }
 
@@ -90,11 +90,11 @@ sub relay #{}
 				$DEBUG and _DEBUG_log(@re_args);
 				my $delay = shift @re_args if ($re_args[0] and not(ref $re_args[0]) and $re_args[0] =~ /^\d+$/);
 				my $next_mthod = $re_args[0] if ($re_args[0] and not(ref $re_args[0]) and $re_args[0] =~ /^\w+/);
-				
-				(not $next_mthod) ? 
-					$self->stop(poe=>$poe, something=>$something,) : 
-				$delay ? 
-					$kernel->delay($event_name => $delay, @re_args ) : 
+
+				(not $next_mthod) ?
+					$self->stop(poe=>$poe, something=>$something,) :
+				$delay ?
+					$kernel->delay($event_name => $delay, @re_args ) :
 					$kernel->yield($event_name, @re_args ) ;
 			}
 		);
@@ -144,9 +144,9 @@ sub chain #{}
 				my $method = $self->state_list->{$something}->{next_mthod}->[$pointer];
 				my @re_args = $self->execute(poe=>$poe, from=>$destination, module=>$module, method=>$method, args=>\@args);
 				$self->state_list->{$something}->{pointer}++;
-				($pointer >= $#{$self->state_list->{$something}->{next_mthod}}) 
+				($pointer >= $#{$self->state_list->{$something}->{next_mthod}})
 					?
-					$self->stop(poe=>$poe, something=>$something,) : 
+					$self->stop(poe=>$poe, something=>$something,) :
 					$kernel->yield($event_name, @re_args ) ;
 			}
 		);
@@ -160,7 +160,7 @@ sub chain #{}
 # -U=loop #delay #limit  module::method , args ..);
 # -U=loop_stop   module::method );
 
-sub loop { 
+sub loop {
 	my $self = shift;
 	my %args = @_;
 	my ($poe, $rsvp, $from, $args) = (
@@ -190,7 +190,7 @@ sub loop {
 			event_name	=>$event_name,
 			next_mthod	=>'',
 			limit	=>$limit,
-			destination	=>$destination, 
+			destination	=>$destination,
 			module	=>$module,
 			method	=>$method,
 		};
@@ -254,16 +254,16 @@ sub execute {
 	my $kernel = $poe->kernel if $poe;
 	#_DEBUG_log(wantarray);
 	for ($from) {
-		/^method/	and return eval { 
+		/^method/	and return eval {
 				$DEBUG and _DEBUG_log("$module->$method( @{$args} )");
 				$module->$method( @{$args} )
 				} ;
-		/^event/	and return eval { 
+		/^event/	and return eval {
 				local $! = undef;
 				$DEBUG and _DEBUG_log("call( $module => $method, @{$args} )");
 				$kernel->call( $module => $method, @{$args} )or return $!
 				} ;
-		/^function/	and return eval { 
+		/^function/	and return eval {
 				no strict 'refs';
 				my $code = "${module}::$method";
 				$DEBUG and _DEBUG_log($code);
@@ -275,7 +275,7 @@ sub execute {
 	}
 	return {poeikcd_error=>
 				'It is not discriminable. '.
-				q{"ModuleName::functionName" or  "ClassName->methodName" or "AliasName eventName"} 
+				q{"ModuleName::functionName" or  "ClassName->methodName" or "AliasName eventName"}
 			}
 }
 
@@ -492,7 +492,7 @@ sub publish_IKC {
 
 
 
-### 
+###
 
 sub _distinguish {
 	my $self = shift;
@@ -535,7 +535,7 @@ sub _distinguish {
 		};
 	}
 	$DEBUG and _DEBUG_log();
-	return 
+	return
 }
 
 ### DEBUG vvvvvvvvvvvvvvvvvvvvvvvvv
@@ -562,8 +562,8 @@ sub _DEBUG_log {
 	my @data = @_;
 	print(
 		$log_header, (join "\t" => map {
-			ref($_) ? Data::Dumper::Dumper($_) : 
-			defined $_ ? $_ : "`'" ; 
+			ref($_) ? Data::Dumper::Dumper($_) :
+			defined $_ ? $_ : "`'" ;
 		} @data ),"\n"
 	);
 }
@@ -597,7 +597,7 @@ POEIKC::Daemon::Utility - Utility for POEIKC::Daemon
 
 =head1 SYNOPSIS
 
-	$ret = $ikc->post_respond('POEIKCd/method_respond' => 
+	$ret = $ikc->post_respond('POEIKCd/method_respond' =>
 		['POEIKC::Daemon::Utility'=> $method_name, $args ..] );
 	print Dumper $ret;
 

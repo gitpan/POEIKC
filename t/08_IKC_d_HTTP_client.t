@@ -42,8 +42,8 @@ my $options = {
   'INC' => [
              './t'
            ],
-  'alias' => 'POEIKCd',
-  'port' => 47225
+  'alias' => 'POEIKCd_t',
+  'port' => 49225
 };
 
 if ($DEBUG) {
@@ -103,7 +103,7 @@ FORK: {
 		run {
 			my $t = shift;
 			my ($no, $type, $state, $name, $comment) = split /\t/, $t->name ;
-			
+
 			my $i = $t->input ;
 			my $e;
 			my $seq_num = $t->seq_num ;
@@ -111,7 +111,7 @@ FORK: {
 			$r = $ikc->post_respond(
 				$state => eval $i) if $type ne 'pass';
 				$ikc->error and die($ikc->error);
-			
+
 #			POEIKC::Daemon::Utility::_DEBUG_log($seq_num,$c);
 			eval $state if defined $state and $type eq 'pass';
 
@@ -134,8 +134,8 @@ FORK: {
 			$type eq 'pass'	and pass('...');
 		};
 
-		# 'POEIKCd/method_respond' => ['POEIKC::Daemon::Utility','stop','POEIKC::Daemon::Utility','stop'] 
-		$ikc->post_respond($options->{alias}.'/method_respond', 
+		# 'POEIKCd_t/method_respond' => ['POEIKC::Daemon::Utility','stop','POEIKC::Daemon::Utility','stop']
+		$ikc->post_respond($options->{alias}.'/method_respond',
 			['POEIKC::Daemon::Utility','shutdown']
 		);
 		$ikc->error and die($ikc->error);
@@ -145,19 +145,19 @@ FORK: {
 
 __END__
 
-=== 1	is	POEIKCd/method_respond	POEIKC::Daemon::Utility=>get_VERSION
+=== 1	is	POEIKCd_t/method_respond	POEIKC::Daemon::Utility=>get_VERSION
 --- input: ['POEIKC::Daemon::Utility' => 'get_VERSION']
 --- expected: $POEIKC::Daemon::VERSION
 
-=== 2	like	POEIKCd/method_respond	'IKC_d_HTTP_client' => 'spawn'
+=== 2	like	POEIKCd_t/method_respond	'IKC_d_HTTP_client' => 'spawn'
 --- input: ['IKC_d_HTTP_client' => 'spawn']
 --- expected: ^\d+$
 
-=== 3	is	POEIKCd/event_respond	'IKC_d_HTTP','enqueue','http://search.cpan.org/~suzuki/'
+=== 3	is	POEIKCd_t/event_respond	'IKC_d_HTTP','enqueue','http://search.cpan.org/~suzuki/'
 --- input: ['IKC_d_HTTP','enqueue','http://search.cpan.org/~suzuki/']
 --- expected: 1
 
-=== 6	is	POEIKCd/method_respond	'POEIKCd/method_respond' => ['POEIKC::Daemon::Utility','publish_IKC','IKC_d_HTTP','IKC_d_HTTP_client']
+=== 6	is	POEIKCd_t/method_respond	'POEIKCd_t/method_respond' => ['POEIKC::Daemon::Utility','publish_IKC','IKC_d_HTTP','IKC_d_HTTP_client']
 --- input: ['POEIKC::Daemon::Utility','publish_IKC','IKC_d_HTTP','IKC_d_HTTP_client']
 --- expected: 1
 

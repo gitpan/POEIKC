@@ -23,8 +23,8 @@ my $options = {
   'INC' => [
              './t'
            ],
-  'alias' => 'POEIKCd',
-  'port' => 47225
+  'alias' => 'POEIKCd_t',
+  'port' => 49225
 };
 
 if ($DEBUG) {
@@ -76,7 +76,7 @@ FORK: {
 		run {
 			my $t = shift;
 			my ($no, $type, $state, $name, $comment) = split /\t/, $t->name ;
-			
+
 			my $i = $t->input ;
 			my $e;
 			my $seq_num = $t->seq_num ;
@@ -84,7 +84,7 @@ FORK: {
 			$r = $ikc->post_respond(
 				$state => eval $i) if $type ne 'pass';
 				$ikc->error and die($ikc->error);
-			
+
 			eval $state if defined $state and $type eq 'pass';
 
 			$e = $type ne 'like' ? eval $t->expected : $t->expected;
@@ -101,7 +101,7 @@ FORK: {
 			$type eq 'pass'	and pass('...');
 		};
 
-		$ikc->post_respond($options->{alias}.'/method_respond', 
+		$ikc->post_respond($options->{alias}.'/method_respond',
 			['POEIKC::Daemon::Utility','shutdown']
 		);
 		$ikc->error and die($ikc->error);
@@ -111,39 +111,39 @@ FORK: {
 
 __END__
 
-=== 1	is	POEIKCd/method_respond	POEIKC::Daemon::Utility=>get_VERSION
+=== 1	is	POEIKCd_t/method_respond	POEIKC::Daemon::Utility=>get_VERSION
 --- input: ['POEIKC::Daemon::Utility' => 'get_VERSION']
 --- expected: $POEIKC::Daemon::VERSION
 
-=== 2	is	POEIKCd/method_respond	'POEIKCd/method_respond' => ['POEIKC::Daemon::Utility','relay','Demo::Relay::relay_test','789'] 
---- input: ['POEIKC::Daemon::Utility','relay','Demo::Relay::relay_test','789'] 
+=== 2	is	POEIKCd_t/method_respond	'POEIKCd_t/method_respond' => ['POEIKC::Daemon::Utility','relay','Demo::Relay::relay_test','789']
+--- input: ['POEIKC::Daemon::Utility','relay','Demo::Relay::relay_test','789']
 --- expected: 'Demo_relay_test_relay'
 
-=== 3	ok_e	POEIKCd/something_respond	'POEIKCd/something_respond' => ['Demo::Relay::get'] 
---- input: ['Demo::Relay::get'] 
+=== 3	ok_e	POEIKCd_t/something_respond	'POEIKCd_t/something_respond' => ['Demo::Relay::get']
+--- input: ['Demo::Relay::get']
 --- expected: $r->{relay_cut} == 5
 
-=== 4	ok_e	POEIKCd/something_respond	'POEIKCd/something_respond' => ['Demo::Relay::get'] 
---- input: ['Demo::Relay::get'] 
+=== 4	ok_e	POEIKCd_t/something_respond	'POEIKCd_t/something_respond' => ['Demo::Relay::get']
+--- input: ['Demo::Relay::get']
 --- expected: $r->{relay_list}->[0] == 789
 
-=== 5	ok_e	POEIKCd/something_respond	'POEIKCd/something_respond' => ['Demo::Relay::get'] 
---- input: ['Demo::Relay::get'] 
+=== 5	ok_e	POEIKCd_t/something_respond	'POEIKCd_t/something_respond' => ['Demo::Relay::get']
+--- input: ['Demo::Relay::get']
 --- expected: $r->{relay_list}->[1] == 1
 
-=== 6	ok_e	POEIKCd/something_respond	'POEIKCd/something_respond' => ['Demo::Relay::get'] 
---- input: ['Demo::Relay::get'] 
+=== 6	ok_e	POEIKCd_t/something_respond	'POEIKCd_t/something_respond' => ['Demo::Relay::get']
+--- input: ['Demo::Relay::get']
 --- expected: $r->{relay_list}->[4] == 4
 
-=== 7	ok_e	POEIKCd/something_respond	'POEIKCd/something_respond' => ['Demo::Relay::get'] 
---- input: ['Demo::Relay::get'] 
+=== 7	ok_e	POEIKCd_t/something_respond	'POEIKCd_t/something_respond' => ['Demo::Relay::get']
+--- input: ['Demo::Relay::get']
 --- expected: $r->{relay_sub_list}->[0] eq 'Demo::Relay::relay_1',
 
-=== 8	ok_e	POEIKCd/something_respond	'POEIKCd/something_respond' => ['Demo::Relay::get'] 
---- input: ['Demo::Relay::get'] 
+=== 8	ok_e	POEIKCd_t/something_respond	'POEIKCd_t/something_respond' => ['Demo::Relay::get']
+--- input: ['Demo::Relay::get']
 --- expected: $r->{relay_sub_list}->[2] eq 'Demo::Relay::relay_3',
 
-=== 9	ok_e	POEIKCd/something_respond	'POEIKCd/something_respond' => ['Demo::Relay::get'] 
---- input: ['Demo::Relay::get'] 
+=== 9	ok_e	POEIKCd_t/something_respond	'POEIKCd_t/something_respond' => ['Demo::Relay::get']
+--- input: ['Demo::Relay::get']
 --- expected: $r->{relay_sub_list}->[3] eq 'Demo::Relay::relay_stop',
 

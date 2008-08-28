@@ -23,8 +23,8 @@ my $options = {
   'INC' => [
              './t'
            ],
-  'alias' => 'POEIKCd',
-  'port' => 47225
+  'alias' => 'POEIKCd_t',
+  'port' => 49225
 };
 
 if ($DEBUG) {
@@ -76,7 +76,7 @@ FORK: {
 		run {
 			my $t = shift;
 			my ($no, $type, $state, $name, $comment) = split /\t/, $t->name ;
-			
+
 			my $i = $t->input ;
 			my $e;
 			my $seq_num = $t->seq_num ;
@@ -84,7 +84,7 @@ FORK: {
 			$r = $ikc->post_respond(
 				$state => eval $i) if $type ne 'pass';
 				$ikc->error and die($ikc->error);
-			
+
 			eval $state if defined $state and $type eq 'pass';
 
 			$e = $type ne 'like' ? eval $t->expected : $t->expected;
@@ -101,7 +101,7 @@ FORK: {
 			$type eq 'pass'	and pass('...');
 		};
 
-		$ikc->post_respond($options->{alias}.'/method_respond', 
+		$ikc->post_respond($options->{alias}.'/method_respond',
 			['POEIKC::Daemon::Utility','shutdown']
 		);
 		$ikc->error and die($ikc->error);
@@ -111,26 +111,26 @@ FORK: {
 
 __END__
 
-=== 1	is	POEIKCd/method_respond	POEIKC::Daemon::Utility=>get_VERSION
+=== 1	is	POEIKCd_t/method_respond	POEIKC::Daemon::Utility=>get_VERSION
 --- input: ['POEIKC::Daemon::Utility' => 'get_VERSION']
 --- expected: $POEIKC::Daemon::VERSION
 
-=== 2	is	POEIKCd/method_respond	'POEIKCd/method_respond' => ['POEIKC::Daemon::Utility','loop','5','Demo::Loop::loop_test','987']
+=== 2	is	POEIKCd_t/method_respond	'POEIKCd_t/method_respond' => ['POEIKC::Daemon::Utility','loop','5','Demo::Loop::loop_test','987']
 --- input: ['POEIKC::Daemon::Utility','loop','5','Demo::Loop::loop_test','987']
 --- expected: 'Demo_loop_test_loop'
 
-=== 3	ok_e	POEIKCd/something_respond	'POEIKCd/something_respond' => ['Demo::Loop::get'] 
+=== 3	ok_e	POEIKCd_t/something_respond	'POEIKCd_t/something_respond' => ['Demo::Loop::get']
 --- input: ['Demo::Loop::get']
 --- expected: $r->{loop_cut} == 5
 
-=== 4	ok_e	POEIKCd/something_respond	'POEIKCd/something_respond' => ['Demo::Loop::get'] 
+=== 4	ok_e	POEIKCd_t/something_respond	'POEIKCd_t/something_respond' => ['Demo::Loop::get']
 --- input: ['Demo::Loop::get']
 --- expected: $r->{loop_list}->[0] == 987
 
-=== 5	ok_e	POEIKCd/something_respond	'POEIKCd/something_respond' => ['Demo::Loop::get'] 
+=== 5	ok_e	POEIKCd_t/something_respond	'POEIKCd_t/something_respond' => ['Demo::Loop::get']
 --- input: ['Demo::Loop::get']
 --- expected: $r->{loop_list}->[1] == 1
 
-=== 5	ok_e	POEIKCd/something_respond	'POEIKCd/something_respond' => ['Demo::Loop::get'] 
+=== 5	ok_e	POEIKCd_t/something_respond	'POEIKCd_t/something_respond' => ['Demo::Loop::get']
 --- input: ['Demo::Loop::get']
 --- expected: $r->{loop_list}->[2] == 2
