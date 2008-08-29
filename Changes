@@ -1,5 +1,13 @@
 Revision history for Perl extension POEIKC
 
+0.02_07   Thu Aug 29 2008
+        - added the option which changed $0($PROGRAM_NAME)
+        - able to do it in "delay" in "loop".
+          eg)
+             "poikc -U loop  MyModule::my_method args .."
+                package MyModule;
+                our $delay = 3;
+
 0.02_06   Thu Aug 28 2008
         - revised a test script.
         - revised a logic of shutdown.

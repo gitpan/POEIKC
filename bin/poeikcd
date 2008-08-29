@@ -19,6 +19,7 @@ BEGIN {
 	$Getopt::Long::ignorecase=0;
 	$options = {};
 	GetOptions ($options, qw/
+		0PROGRAM_NAME:s
 		name=s
 		port=i
 		alias=s
@@ -150,6 +151,15 @@ poeikcd - POE IKC daemon
   Options:
 
     -n,  --name=s      : Server name.
+
+    -0   --0PROGRAM_NAME=s
+                       : renew $0 ($PROGRAM_NAME) . 
+                         What want to make it same as a server name,
+                         do not set an argument.
+                              poeikcd start --name=MyServerName -0
+                         To do it separately from a server name, 
+                         attach an argument.
+                              poeikcd start --name=MyServerName -0=MyProgramName
 
     -p,  --port=#      : Port number to use for connection.
 

@@ -49,6 +49,21 @@ sub init {
 	$self->argv($opt{argv}) if $opt{argv};
 	$self->alias($opt{alias} || 'POEIKCd');
 
+	if ( exists $opt{"0PROGRAM_NAME"} ) {
+		my $pn = $opt{"0PROGRAM_NAME"} || $opt{"name"} || 'poeikcd' ;
+		$0 = sprintf "%s --alias=%s --port=%s",
+				$pn, $self->alias, $opt{port} ;
+	}else{
+		if ($opt{"name"}){
+			$0 = sprintf "poeikcd --name=%s --alias=%s --port=%s",
+				$opt{"name"}, $self->alias, $opt{port} ;
+		}else{
+			$0 = sprintf "poeikcd --alias=%s --port=%s",
+				$self->alias, $opt{port} ;
+		}
+	}
+
+
 	$opt{name} ||= join('_'=>__PACKAGE__ =~ m/(\w+)/g);
 	$self->server_name($opt{name});
 
@@ -71,8 +86,7 @@ sub init {
 	push @{$opt{Module}}, __PACKAGE__, 'POEIKC::Daemon::Utility';
 	$self->pidu->inc->{load}->{ $_ } = [$INC{Class::Inspector->filename($_)},scalar localtime] for @{$opt{Module}};
 
-	$0 = sprintf "poeikcd --alias=%s --port=%s",
-				$self->alias, $self->server_port ;#if $0 =~ /poeikcd/;
+	
 	if ($DEBUG) {
 		no warnings 'redefine';
 		*POE::Component::IKC::Responder::DEBUG = sub { 1 };

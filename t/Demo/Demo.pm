@@ -2,8 +2,9 @@ package Demo::Demo;
 
 use Cwd;
 
-our $time; 
+our $time;
 our $cut;
+our $delay = 3;
 
 local $|=1;
 
@@ -15,7 +16,7 @@ sub demo {
 sub loop_test {
 	my $dir = getcwd;
 	my $path = $dir. '/test-poeikcd.txt';
-	sleep 0.5;
+	$delay = 0.5;
 	$cut++;
 	$time =  scalar(localtime) . ' cut='. $cut;
 	my $str = POEIKC::Daemon::Utility::_log_header. join "\t"=>$cut,'(',@_,')', caller(1);
@@ -44,7 +45,7 @@ END {
 }
 
 sub relay_start {
-	sleep 0.5;
+	$delay = 0.5;
 	my $dir = getcwd;
 	my $path = $dir. '/test-poeikcd.txt';
 	$cut++;
@@ -53,12 +54,12 @@ sub relay_start {
 	`echo "***" >> $path`;
 	`date >> $path`;
 	`echo "$str" >> $path`;
-	
+
 	return 'relay_1', __LINE__,@_;
 }
 
 sub relay_1 {
-	sleep 0.5;
+	$delay = 0.5;
 	my $dir = getcwd;
 	my $path = $dir. '/test-poeikcd.txt';
 	$cut++;
@@ -72,7 +73,7 @@ sub relay_1 {
 }
 
 sub relay_2 {
-	sleep 0.5;
+	$delay = 0.5;
 	my $dir = getcwd;
 	my $path = $dir. '/test-poeikcd.txt';
 	$cut++;
@@ -86,7 +87,7 @@ sub relay_2 {
 }
 
 sub relay_stop {
-	sleep 0.5;
+	$delay = 0.5;
 	my $dir = getcwd;
 	my $path = $dir. '/test-poeikcd.txt';
 	$cut++;
@@ -105,7 +106,7 @@ sub relay_stop {
 
 #use POEIKC::Daemon::Utility;
 sub chain_start {
-	sleep 0.5;
+	$delay = 0.5;
 	my $dir = getcwd;
 	my $path = $dir. '/test-poeikcd.txt';
 	$cut++;
@@ -118,7 +119,7 @@ sub chain_start {
 }
 
 sub chain_1 {
-	sleep 0.5;
+	$delay = 0.5;
 	my $dir = getcwd;
 	my $path = $dir. '/test-poeikcd.txt';
 	$cut++;
@@ -131,7 +132,7 @@ sub chain_1 {
 }
 
 sub chain_2 {
-	sleep 0.5;
+	$delay = 0.5;
 	my $dir = getcwd;
 	my $path = $dir. '/test-poeikcd.txt';
 	$cut++;
@@ -144,7 +145,7 @@ sub chain_2 {
 }
 
 sub chain_3 {
-	sleep 0.5;
+	$delay = 0.5;
 	my $dir = getcwd;
 	my $path = $dir. '/test-poeikcd.txt';
 	$cut++;
