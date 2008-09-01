@@ -1,5 +1,12 @@
 Revision history for Perl extension POEIKC
 
+0.03      Tue Sep  2 2008
+          The change from 0.02
+        - added "POEIKC::Daemon::P2P".  Peer-to-Peer is made in this.
+        - revised a logic of shutdown.
+        - added the option which changed $0($PROGRAM_NAME).
+        - able to do it in "delay" in "loop".
+
 0.02_07   Thu Aug 29 2008
         - added the option which changed $0($PROGRAM_NAME)
         - able to do it in "delay" in "loop".
