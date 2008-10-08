@@ -1,5 +1,12 @@
 Revision history for Perl extension POEIKC
 
+0.03_01   Thu Oct  9 2008
+        - added an option of startup. default is "spawn". 
+          eg) poeikcd -M MyModule --startup start
+                 `MyModule->spawn'
+              poeikcd -M MyModule --startup=new start
+                 `MyModule->new'
+
 0.03      Tue Sep  2 2008
           The change from 0.02
         - added "POEIKC::Daemon::P2P".  Peer-to-Peer is made in this.

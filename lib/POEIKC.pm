@@ -1,8 +1,8 @@
 package POEIKC;
 
 use strict;
-use 5.8.1;
-our $VERSION = '0.03';
+use 5.008_001;
+our $VERSION = '0.03_01';
 
 1;
 __END__

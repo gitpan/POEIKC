@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl
 
 use strict;
-use v5.8.1;
+use 5.008_001;
 
 use warnings;
 use Data::Dumper;
@@ -31,6 +31,7 @@ BEGIN {
 		foreground
 		version
 		Module=s@
+		startup:s
 		debug
 		help
 	/);
@@ -175,6 +176,12 @@ poeikcd - POE IKC daemon
 
     -M   --Module      : execute "use/no module..." before executing program
                          eg) -M LWP::Simple
+
+    -s   --startup     : default is "spawn". 
+                         eg) poeikcd -M MyModule --startup start
+                             `MyModule->spawn'
+                             poeikcd -M MyModule --startup=new start
+                             `MyModule->new'
 
     -v   --version     : show version number
 

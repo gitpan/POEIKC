@@ -2,7 +2,7 @@ package POEIKC::Daemon;
 
 use strict;
 
-use 5.008_001;#use v5.8.1;
+use 5.008_001;
 
 use warnings;
 use Data::Dumper;
@@ -44,7 +44,6 @@ sub ikc_server_param {
 sub init {
 	my $class = shift || __PACKAGE__ ;
 	my $self = $class->new;
-	%opt = @_;
 	$DEBUG = $opt{debug};
 	$self->argv($opt{argv}) if $opt{argv};
 	$self->alias($opt{alias} || 'POEIKCd');
@@ -86,7 +85,7 @@ sub init {
 	push @{$opt{Module}}, __PACKAGE__, 'POEIKC::Daemon::Utility';
 	$self->pidu->inc->{load}->{ $_ } = [$INC{Class::Inspector->filename($_)},scalar localtime] for @{$opt{Module}};
 
-	
+
 	if ($DEBUG) {
 		no warnings 'redefine';
 		*POE::Component::IKC::Responder::DEBUG = sub { 1 };
@@ -101,8 +100,14 @@ sub init {
 }
 
 sub daemon {
-	my $self = shift->init(@_);
+	my $class = shift || __PACKAGE__ ;
+	%opt = @_;
+	my @startup = @{$opt{Module}} if exists $opt{Module};
+	my $self = $class->init(%opt);
 	$self->spawn();
+	if (@startup and exists $opt{startup}) {
+		$self->startup($_, $opt{startup}) for ( @startup );
+	}
 	$self->poe_run();
 }
 
@@ -133,6 +138,14 @@ sub spawn
 #	}
 
 	return 1;
+}
+
+sub startup {
+	my $self = shift;
+	my $module = shift;
+	my $startup = shift || 'spawn';
+	$DEBUG and POEIKC::Daemon::Utility::_DEBUG_log("$module->$startup()");
+	$module->$startup();
 }
 
 sub _start {
