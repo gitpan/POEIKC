@@ -22,8 +22,8 @@ plan skip_all => "." if $@;
 $| = 1;
 
 my @options = (
-  "./bin/poeikcd start --alias=POEIKCd_t -n=ServerA -p=49225 -I=t:lib -M=Demo::P2P ",
-  "./bin/poeikcd start --alias=POEIKCd_t -n=ServerB -p=49226 -I=t:lib -M=Demo::P2P ",
+  "./bin/poeikcd start --alias=POEIKCd_t -n=ServerA -p=49225 -I=t:lib -M=Demo::P2P -s ",
+  "./bin/poeikcd start --alias=POEIKCd_t -n=ServerB -p=49226 -I=t:lib -M=Demo::P2P -s ",
 );
 
 my @pid;
@@ -56,8 +56,8 @@ foreach my $options (@options){
 	}
 
 
-	my $sa = $ikc[0]->post_respond( 'POEIKCd_t/something_respond' => ['Demo::P2P->spawn'] );
-	my $sb = $ikc[1]->post_respond( 'POEIKCd_t/something_respond' => ['Demo::P2P->spawn'] );
+	my $sa;
+	my $sb;
 
 	$sa = $ikc[0]->post_respond( 'POEIKCd_t/something_respond' => ['ServerA_alias','server_connect','ServerB','49226'] );
 
@@ -98,8 +98,8 @@ __END__
  poeikcd start -f --alias=POEIKCd_t -n=ServerA -p=49225 -I=eg/lib:lib:t -M=Demo::P2P
  poeikcd start -f --alias=POEIKCd_t -n=ServerB -p=49226 -I=eg/lib:lib:t -M=Demo::P2P
 
-  poikc -p=49225 -D "Demo::P2P->spawn"
-  poikc -p=49226 -D "Demo::P2P->spawn"
+#  poikc -p=49225 -D "Demo::P2P->spawn"
+#  poikc -p=49226 -D "Demo::P2P->spawn"
 
   poikc -p=49225 -D ServerA_alias server_connect ServerB 49226
 
@@ -107,11 +107,11 @@ __END__
   poikc -p=49226 -D ServerB_alias go ServerA
 
 
-$   poikc -p=49225 -D "Demo::P2P->spawn"
-# $ikc_client->post_respond( 'POEIKCd_t/something_respond' => ['Demo::P2P->spawn'] );
-
-$   poikc -p=49226 -D "Demo::P2P->spawn"
-# $ikc_client->post_respond( 'POEIKCd_t/something_respond' => ['Demo::P2P->spawn'] );
+#	$   poikc -p=49225 -D "Demo::P2P->spawn"
+#	# $ikc_client->post_respond( 'POEIKCd_t/something_respond' => ['Demo::P2P->spawn'] );
+#
+#	$   poikc -p=49226 -D "Demo::P2P->spawn"
+#	# $ikc_client->post_respond( 'POEIKCd_t/something_respond' => ['Demo::P2P->spawn'] );
 
 $   poikc -p=49225 -D ServerA_alias server_connect ServerB 49226
 # $ikc_client->post_respond( 'POEIKCd_t/something_respond' => ['ServerA_alias','server_connect','ServerB','49226'] );

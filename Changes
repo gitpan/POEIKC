@@ -1,5 +1,8 @@
 Revision history for Perl extension POEIKC
 
+0.04      Sat Oct 11 2008
+        - revised a test script.
+
 0.03_01   Thu Oct  9 2008
         - added an option of startup. default is "spawn". 
           eg) poeikcd -M MyModule --startup start
